@@ -22,8 +22,8 @@ export class IMUVisualizer {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x0d1117);
-        this.scene.fog = new THREE.FogExp2(0x0d1117, 0.06);
+        this.scene.background = new THREE.Color(0xeef2f7);
+        this.scene.fog = new THREE.FogExp2(0xeef2f7, 0.04);
 
         this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
         this.camera.position.set(5, 4, 6);

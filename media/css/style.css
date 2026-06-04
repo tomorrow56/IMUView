@@ -1,16 +1,16 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg:      #1e1e1e;
-    --bg2:     #252526;
-    --bg3:     #2d2d2d;
-    --border:  #3c3c3c;
-    --text:    #cccccc;
-    --muted:   #858585;
-    --blue:    #569cd6;
-    --green:   #6a9955;
-    --red:     #f44747;
-    --accent:  #0e639c;
+    --bg:      #ffffff;
+    --bg2:     #f3f3f3;
+    --bg3:     #e8e8e8;
+    --border:  #d4d4d4;
+    --text:    #1e1e1e;
+    --muted:   #616161;
+    --blue:    #0066b8;
+    --green:   #008000;
+    --red:     #cd3131;
+    --accent:  #0066b8;
     --font:    'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
@@ -101,11 +101,11 @@ h1 {
 .dot {
     width: 7px; height: 7px;
     border-radius: 50%;
-    background: #555;
+    background: #bbb;
 }
-.dot.ok    { background: #4ec9b0; }
+.dot.ok    { background: #28a745; }
 .dot.error { background: var(--red); }
-.dot.idle  { background: #555; }
+.dot.idle  { background: #bbb; }
 
 select {
     background: var(--bg3);
@@ -133,7 +133,7 @@ button {
     border-color: var(--accent);
     padding: 4px 14px;
 }
-.btn-primary:hover { background: #1177bb; }
+.btn-primary:hover { background: #005a9e; }
 
 .btn-ghost {
     background: transparent;
@@ -152,7 +152,7 @@ button {
 #viewport {
     position: relative;
     overflow: hidden;
-    background: #1a1a2e;
+    background: #eef2f7;
 }
 
 #three-canvas {
@@ -165,7 +165,7 @@ button {
     position: absolute;
     bottom: 12px;
     left: 12px;
-    background: rgba(30,30,30,0.85);
+    background: rgba(255,255,255,0.9);
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 8px 12px;
@@ -181,7 +181,7 @@ button {
 }
 
 .euler-label { color: var(--muted); }
-.euler-val   { color: #dcdcaa; font-weight: 600; min-width: 50px; text-align: right; }
+.euler-val   { color: #0066b8; font-weight: 600; min-width: 50px; text-align: right; }
 
 #sidebar {
     display: flex;
