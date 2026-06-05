@@ -217,8 +217,8 @@ class App {
         document.getElementById('pitch-val').textContent = '0.0';
         document.getElementById('yaw-val').textContent = '0.0';
         for (const b of Object.values(this._statBufs)) b.length = 0;
-        document.getElementById('accel-stats').textContent = 'ax  —\nay  —\naz  —';
-        document.getElementById('gyro-stats').textContent = 'gx  —\ngy  —\ngz  —';
+        document.getElementById('accel-stats').textContent = 'ax  --\nay  --\naz  --';
+        document.getElementById('gyro-stats').textContent = 'gx  --\ngy  --\ngz  --';
     }
 
     _updateStats() {
@@ -228,7 +228,7 @@ class App {
             const std = Math.sqrt(buf.reduce((a, e) => a + (e.v - mean) ** 2, 0) / buf.length);
             return { m: mean, s: std };
         };
-        const fmt = (m, s) => `${m.toFixed(1)}±${s.toFixed(1)}`;
+        const fmt = (m, s) => `${m.toFixed(1)} +/- ${s.toFixed(1)}`;
         const { ax, ay, az, gx, gy, gz } = this._statBufs;
         const [sa, sb, sc] = [ax, ay, az].map(calc);
         const [sd, se, sf] = [gx, gy, gz].map(calc);

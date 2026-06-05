@@ -10,9 +10,9 @@ const BASE_OPTS = {
     scales: {
         x: { display: false },
         y: {
-            grid:   { color: 'rgba(48,54,61,0.7)', lineWidth: 1 },
-            ticks:  { color: '#7d8590', font: { size: 10 }, maxTicksLimit: 5 },
-            border: { color: '#21262d' },
+            grid:   { color: 'rgba(217,221,227,0.85)', lineWidth: 1 },
+            ticks:  { color: '#66707c', font: { size: 10 }, maxTicksLimit: 5 },
+            border: { color: '#d9dde3' },
         },
     },
 };
@@ -75,8 +75,8 @@ export class MagCalChart {
                 animation: false,
                 plugins: { legend: { display: false }, tooltip: { enabled: false } },
                 scales: {
-                    x: { grid: { color: '#21262d' }, ticks: { color: '#7d8590', maxTicksLimit: 4 } },
-                    y: { grid: { color: '#21262d' }, ticks: { color: '#7d8590', maxTicksLimit: 4 } },
+                    x: { grid: { color: '#d9dde3' }, ticks: { color: '#66707c', maxTicksLimit: 4 } },
+                    y: { grid: { color: '#d9dde3' }, ticks: { color: '#66707c', maxTicksLimit: 4 } },
                 },
             },
         });
@@ -132,7 +132,7 @@ export class MagCalChart {
             c.data.datasets[0].backgroundColor = [];
             c.data.datasets[1].data = [];
             const el = document.getElementById(`mag-bias-${i}`);
-            if (el) el.textContent = 'bias  —';
+            if (el) el.textContent = 'bias  --';
             c.update('none');
         });
     }

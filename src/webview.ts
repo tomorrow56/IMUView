@@ -6,10 +6,6 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
     const orbitJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'lib', 'OrbitControls.js'));
     const chartJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'lib', 'chart.umd.min.js'));
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'css', 'style.css'));
-    const filtersJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'js', 'filters.js'));
-    const kalmanJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'js', 'kalman.js'));
-    const visualizerJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'js', 'visualizer.js'));
-    const chartsJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'js', 'charts.js'));
     const mainJs = webview.asWebviewUri(vscode.Uri.joinPath(mediaUri, 'js', 'main.js'));
     const nonce = getNonce();
 
@@ -59,11 +55,12 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
                         <option value="262.4">125 dps</option>
                     </select>
                     <button id="connect-btn" class="btn-primary">Connect</button>
-                    <button id="demo-btn" class="btn-ghost">Demo Mode</button>
+                    <button id="demo-btn" class="btn-secondary">Demo Mode</button>
                     <button id="reset-btn" class="btn-ghost">Reset</button>
                 </div>
             </div>
-            <div id="filter-bar">
+
+            <div id="status-bar">
                 <label for="filter-select">Filter</label>
                 <select id="filter-select">
                     <option value="simple">Accel Only</option>
@@ -71,12 +68,17 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
                     <option value="madgwick">Madgwick</option>
                     <option value="ekf" selected>EKF</option>
                 </select>
+                <span class="sep">|</span>
                 <span id="status"><span class="dot idle" id="status-dot"></span><span id="status-text">Disconnected</span></span>
-                <span id="rate-display">0 Hz</span>
+                <span class="sep">|</span>
+                <span>Rate: <strong id="rate-display">0 Hz</strong></span>
             </div>
         </header>
+
         <main id="main">
-            <section id="viewport">
+            <section id="viewer-panel">
+                <div id="viewer-label">3D Orientation</div>
+                <div id="viewer-hint">Drag to orbit &middot; Scroll to zoom</div>
                 <canvas id="three-canvas"></canvas>
                 <div id="euler-overlay">
                     <div class="euler-row"><span class="euler-label">Roll</span><span id="roll-val" class="euler-val">0.0</span></div>
@@ -84,13 +86,47 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
                     <div class="euler-row"><span class="euler-label">Yaw</span><span id="yaw-val" class="euler-val">0.0</span></div>
                 </div>
             </section>
-            <aside id="sidebar">
-                <div class="chart-wrap"><div class="chart-title">Accelerometer</div><canvas id="accel-chart"></canvas></div>
-                <div class="chart-wrap"><div class="chart-title">Gyroscope</div><canvas id="gyro-chart"></canvas></div>
-                <div class="chart-wrap"><div class="chart-title">Orientation</div><canvas id="orient-chart"></canvas></div>
-                <div id="stats-panel">
-                    <pre id="accel-stats">ax  —\nay  —\naz  —</pre>
-                    <pre id="gyro-stats">gx  —\ngy  —\ngz  —</pre>
+
+            <aside id="charts-panel">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <span>Accelerometer</span>
+                        <span class="chart-unit">raw LSB</span>
+                    </div>
+                    <div class="chart-wrap"><canvas id="accel-chart"></canvas></div>
+                    <div class="chart-legend">
+                        <span class="leg" style="--c:#ff4757">ax</span>
+                        <span class="leg" style="--c:#2ed573">ay</span>
+                        <span class="leg" style="--c:#1e90ff">az</span>
+                    </div>
+                    <div class="chart-stats" id="accel-stats">ax  --&#10;ay  --&#10;az  --</div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <span>Gyroscope</span>
+                        <span class="chart-unit">raw LSB</span>
+                    </div>
+                    <div class="chart-wrap"><canvas id="gyro-chart"></canvas></div>
+                    <div class="chart-legend">
+                        <span class="leg" style="--c:#ff6b81">gx</span>
+                        <span class="leg" style="--c:#7bed9f">gy</span>
+                        <span class="leg" style="--c:#70a1ff">gz</span>
+                    </div>
+                    <div class="chart-stats" id="gyro-stats">gx  --&#10;gy  --&#10;gz  --</div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <span>Orientation</span>
+                        <span class="chart-unit">deg</span>
+                    </div>
+                    <div class="chart-wrap"><canvas id="orient-chart"></canvas></div>
+                    <div class="chart-legend">
+                        <span class="leg" style="--c:#ffa502">Roll</span>
+                        <span class="leg" style="--c:#00d2d3">Pitch</span>
+                        <span class="leg" style="--c:#ff6bcb">Yaw</span>
+                    </div>
                 </div>
             </aside>
         </main>
