@@ -30,6 +30,7 @@ class App {
         const connectBtn = document.getElementById('connect-btn');
         const demoBtn = document.getElementById('demo-btn');
         const resetBtn = document.getElementById('reset-btn');
+        const refreshPortsBtn = document.getElementById('refresh-ports-btn');
         const portSel = document.getElementById('port-select');
         const baudSel = document.getElementById('baud-select');
 
@@ -48,6 +49,11 @@ class App {
                     baudRate: Number(baudSel.value),
                 });
             }
+        });
+
+        refreshPortsBtn.addEventListener('click', () => {
+            this._setStatus('Refreshing ports...', 'idle');
+            vscode.postMessage({ command: 'listPorts' });
         });
 
         demoBtn.addEventListener('click', () => this._toggleDemo());
@@ -102,6 +108,9 @@ class App {
             opt.textContent = p.path + (p.manufacturer ? ` (${p.manufacturer})` : '');
             sel.appendChild(opt);
         }
+        if (!this.isConnected) {
+            this._setStatus(ports.length ? 'Disconnected' : 'No ports found', 'idle');
+        }
     }
 
     _onIMUData(imu) {
@@ -115,6 +124,8 @@ class App {
         document.getElementById('roll-val').textContent = orientation.roll.toFixed(1);
         document.getElementById('pitch-val').textContent = orientation.pitch.toFixed(1);
         document.getElementById('yaw-val').textContent = orientation.yaw.toFixed(1);
+        document.getElementById('orient-stats').textContent =
+            `Roll   ${orientation.roll.toFixed(1)}\nPitch  ${orientation.pitch.toFixed(1)}\nYaw    ${orientation.yaw.toFixed(1)}`;
 
         // Throttle chart updates
         if (now - this.lastChartTime > CHART_THROTTLE_MS) {
@@ -217,6 +228,7 @@ class App {
         document.getElementById('roll-val').textContent = '0.0';
         document.getElementById('pitch-val').textContent = '0.0';
         document.getElementById('yaw-val').textContent = '0.0';
+        document.getElementById('orient-stats').textContent = 'Roll   0.0\nPitch  0.0\nYaw    0.0';
         for (const b of Object.values(this._statBufs)) b.length = 0;
         document.getElementById('accel-stats').textContent = 'ax  --\nay  --\naz  --';
         document.getElementById('gyro-stats').textContent = 'gx  --\ngy  --\ngz  --';
@@ -229,7 +241,7 @@ class App {
             const std = Math.sqrt(buf.reduce((a, e) => a + (e.v - mean) ** 2, 0) / buf.length);
             return { m: mean, s: std };
         };
-        const fmt = (m, s) => `${m.toFixed(1)} ± ${s.toFixed(1)}`;
+        const fmt = (m, s) => `${m.toFixed(1)} +/- ${s.toFixed(1)}`;
         const { ax, ay, az, gx, gy, gz } = this._statBufs;
         const [sa, sb, sc] = [ax, ay, az].map(calc);
         const [sd, se, sf] = [gx, gy, gz].map(calc);

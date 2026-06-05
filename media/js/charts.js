@@ -5,13 +5,13 @@ const BASE_OPTS = {
     maintainAspectRatio: false,
     animation: false,
     interaction: { mode: 'index', intersect: false },
-    elements: { point: { radius: 0 }, line: { borderWidth: 1.5 } },
+    elements: { point: { radius: 0 }, line: { borderWidth: 1.35 } },
     plugins: { legend: { display: false }, tooltip: { enabled: false } },
     scales: {
         x: { display: false },
         y: {
             grid:   { color: 'rgba(217,221,227,0.85)', lineWidth: 1 },
-            ticks:  { color: '#66707c', font: { size: 10 }, maxTicksLimit: 5 },
+            ticks:  { color: '#66707c', font: { size: 11 }, maxTicksLimit: 5 },
             border: { color: '#d9dde3' },
         },
     },
@@ -54,7 +54,7 @@ export class MagCalChart {
         this._minGap = 300;
         this._lastT  = 0;
         this._bufs   = [[], [], []];
-        this._colors  = [[255, 71, 87], [46, 213, 115], [30, 144, 255]];
+        this._colors  = [[181, 82, 82], [79, 143, 104], [79, 120, 168]];
         this._labels  = [['mx', 'my'], ['my', 'mz'], ['mz', 'mx']];
         this._charts = ids.map((id, i) => this._build(id, i));
     }
@@ -75,8 +75,8 @@ export class MagCalChart {
                 animation: false,
                 plugins: { legend: { display: false }, tooltip: { enabled: false } },
                 scales: {
-                    x: { grid: { color: '#d9dde3' }, ticks: { color: '#66707c', maxTicksLimit: 4 } },
-                    y: { grid: { color: '#d9dde3' }, ticks: { color: '#66707c', maxTicksLimit: 4 } },
+                    x: { grid: { color: '#d9dde3' }, ticks: { color: '#66707c', font: { size: 11 }, maxTicksLimit: 4 } },
+                    y: { grid: { color: '#d9dde3' }, ticks: { color: '#66707c', font: { size: 11 }, maxTicksLimit: 4 } },
                 },
             },
         });
@@ -140,9 +140,9 @@ export class MagCalChart {
 
 export class RealtimeCharts {
     init() {
-        this.accel  = buildChart('accel-chart',  ['#ff4757', '#2ed573', '#1e90ff']);
-        this.gyro   = buildChart('gyro-chart',   ['#ff6b81', '#7bed9f', '#70a1ff']);
-        this.orient = buildChart('orient-chart', ['#ffa502', '#00d2d3', '#ff6bcb']);
+        this.accel  = buildChart('accel-chart',  ['rgba(181,82,82,0.88)', '#4f8f68', 'rgba(79,120,168,0.9)']);
+        this.gyro   = buildChart('gyro-chart',   ['rgba(192,107,107,0.86)', 'rgba(109,165,124,0.9)', 'rgba(110,143,184,0.9)']);
+        this.orient = buildChart('orient-chart', ['rgba(184,135,63,0.9)', 'rgba(79,154,160,0.9)', 'rgba(155,111,157,0.88)']);
     }
 
     /** @param {{ ax,ay,az,gx,gy,gz,mx,my,mz }} imu  @param {{ roll,pitch,yaw }} orientation */

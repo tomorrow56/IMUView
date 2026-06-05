@@ -34,7 +34,7 @@ html, body {
 #header {
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    padding: 8px 12px 7px;
+    padding: 8px 12px 9px;
     flex-shrink: 0;
     user-select: none;
 }
@@ -42,9 +42,8 @@ html, body {
 #title-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 }
 
 #title-left {
@@ -60,23 +59,48 @@ h1 {
     font-weight: 600;
 }
 
-#controls,
-#status-bar {
+.toolbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.toolbar-row + .toolbar-row {
+    margin-top: 6px;
+}
+
+.toolbar-group,
+.toolbar-status {
     display: flex;
     align-items: center;
     gap: 7px;
     flex-wrap: wrap;
 }
 
-#controls label,
-#status-bar label {
+.toolbar-group {
+    min-width: 0;
+}
+
+.toolbar-status {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-left: 8px;
+}
+
+.toolbar-row label {
     color: var(--muted);
     font-size: 0.78rem;
 }
 
-#status-bar {
-    color: var(--muted);
-    font-size: 0.78rem;
+.group-label {
+    color: #46515e;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    margin-right: 2px;
+    text-transform: uppercase;
 }
 
 #status {
@@ -239,11 +263,15 @@ button {
 #charts-panel::-webkit-scrollbar-thumb { background: #c6ccd4; border-radius: 3px; }
 
 .chart-card {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: var(--shadow);
-    padding: 8px 10px 7px;
+    padding: 8px 10px;
 }
 
 .chart-title {
@@ -252,7 +280,7 @@ button {
     justify-content: space-between;
     margin-bottom: 6px;
     color: var(--muted);
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.7px;
     text-transform: uppercase;
@@ -267,8 +295,9 @@ button {
 }
 
 .chart-wrap {
+    flex: 1 1 0;
+    min-height: 58px;
     position: relative;
-    height: 100px;
 }
 
 .chart-wrap canvas {
@@ -276,12 +305,21 @@ button {
     height: 100% !important;
 }
 
-.chart-legend {
-    display: flex;
-    gap: 12px;
+.chart-meta {
+    display: grid;
+    grid-template-columns: minmax(78px, 0.9fr) minmax(112px, 1.1fr);
+    align-items: start;
+    gap: 8px;
     margin-top: 5px;
+    min-height: 4.1em;
+}
+
+.chart-legend {
+    display: grid;
+    gap: 3px;
     color: var(--muted);
-    font-size: 0.72rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
 }
 
 .leg::before {
@@ -296,21 +334,25 @@ button {
 
 .chart-stats {
     color: var(--muted);
-    flex-shrink: 0;
     font-family: 'Cascadia Code', 'Consolas', monospace;
-    font-size: 0.75rem;
-    line-height: 1.55;
-    padding: 5px 2px 0;
+    font-size: 0.79rem;
+    line-height: 1.4;
+    overflow: hidden;
+    padding: 0;
+    text-align: right;
+    text-overflow: ellipsis;
     white-space: pre;
 }
 
 @media (max-width: 1400px) {
     #main { grid-template-columns: 1fr 290px; }
-    .chart-wrap { height: 92px; }
 }
 
 @media (max-width: 1100px) {
-    #title-bar { align-items: flex-start; flex-direction: column; }
+    #title-bar { align-items: flex-start; }
+    .toolbar-status { margin-left: 0; }
     #main { grid-template-columns: 1fr 240px; }
-    .chart-wrap { height: 82px; }
+    .chart-meta { grid-template-columns: 1fr; min-height: auto; }
+    .chart-legend { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .chart-stats { text-align: left; }
 }
