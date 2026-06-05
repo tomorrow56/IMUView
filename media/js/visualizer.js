@@ -231,16 +231,30 @@ export class IMUVisualizer {
         }
 
         // LEDs (keep separate for emissive)
+        this.ledGreenMat = new THREE.MeshPhongMaterial({
+            color: 0x4fae63,
+            emissive: 0x4fae63,
+            emissiveIntensity: 0.34,
+            transparent: true,
+            opacity: 0.95,
+        });
         const ledGreen = new THREE.Mesh(
             new THREE.BoxGeometry(0.06, 0.03, 0.04),
-            new THREE.MeshPhongMaterial({ color: 0x4fae63, emissive: 0x4fae63, emissiveIntensity: 0.18, transparent: true, opacity: 0.82 })
+            this.ledGreenMat
         );
         ledGreen.position.set(0.55, TOP + 0.015, -0.38);
         this.imuGroup.add(ledGreen);
 
+        this.ledRedMat = new THREE.MeshPhongMaterial({
+            color: 0xc95d4d,
+            emissive: 0xc95d4d,
+            emissiveIntensity: 0.3,
+            transparent: true,
+            opacity: 0.95,
+        });
         const ledRed = new THREE.Mesh(
             new THREE.BoxGeometry(0.06, 0.03, 0.04),
-            new THREE.MeshPhongMaterial({ color: 0xc95d4d, emissive: 0xc95d4d, emissiveIntensity: 0.16, transparent: true, opacity: 0.82 })
+            this.ledRedMat
         );
         ledRed.position.set(0.7, TOP + 0.015, -0.38);
         this.imuGroup.add(ledRed);
@@ -389,8 +403,19 @@ export class IMUVisualizer {
 
     _animate() {
         this._raf = requestAnimationFrame(() => this._animate());
+        this._updateLedPulse(performance.now() * 0.001);
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
+    }
+
+    _updateLedPulse(t) {
+        if (this.ledGreenMat) {
+            this.ledGreenMat.emissiveIntensity = 0.28 + 0.42 * (0.5 + 0.5 * Math.sin(t * 4.2));
+        }
+        if (this.ledRedMat) {
+            const blink = (Math.sin(t * 9.5) > 0.72) ? 1 : 0;
+            this.ledRedMat.emissiveIntensity = 0.18 + 0.58 * blink;
+        }
     }
 
     dispose() {
