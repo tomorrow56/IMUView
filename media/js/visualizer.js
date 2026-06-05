@@ -20,17 +20,33 @@ export class IMUVisualizer {
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xeef2f7);
-        this.scene.fog = new THREE.FogExp2(0xeef2f7, 0.04);
 
-        this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-        this.camera.position.set(5, 4, 6);
+        this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+        this.defaultCameraPosition = new THREE.Vector3(-6.5, 6.2, -8.5);
+        this.introTargetEnd = new THREE.Vector3(0, 0, 0);
+        this.introEndRadius = Math.hypot(this.defaultCameraPosition.x, this.defaultCameraPosition.z);
+        this.introEndAngle = Math.atan2(this.defaultCameraPosition.z, this.defaultCameraPosition.x);
+        this.introOrbitAngle = Math.PI;
+        this.introStartRadius = this.introEndRadius * 1.18;
+        this.introStartHeight = this.defaultCameraPosition.y + 2.4;
+        this.introStartTime = performance.now();
+        this.introDuration = 2200;
+        this.introActive = true;
+        this.camera.position.set(
+            Math.cos(this.introEndAngle - this.introOrbitAngle) * this.introStartRadius,
+            this.introStartHeight,
+            Math.sin(this.introEndAngle - this.introOrbitAngle) * this.introStartRadius
+        );
         this.camera.lookAt(0, 0, 0);
 
         this.controls = new OrbitControls(this.camera, canvas);
+        this.controls.enabled = false;
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.07;
         this.controls.minDistance = 2;
         this.controls.maxDistance = 20;
+        this.controls.target.copy(this.introTargetEnd);
+        this.controls.update();
 
         this._ro = new ResizeObserver(() => this._resize());
         this._ro.observe(canvas.parentElement);
@@ -47,7 +63,7 @@ export class IMUVisualizer {
 
     _initScene() {
         // Ambient
-        this.scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.56));
 
         // Key light
         const key = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -91,7 +107,7 @@ export class IMUVisualizer {
         const TOP = H / 2;
 
         // PCB base
-        const pcbMat = new THREE.MeshPhongMaterial({ color: 0x2f6fa8, specular: 0x4c5f72, shininess: 24 });
+        const pcbMat = new THREE.MeshPhongMaterial({ color: 0x527da3, specular: 0x9eb3c8, shininess: 42 });
         const pcb = new THREE.Mesh(this._makeRoundedBoardGeometry(W, H, D, 0.08), pcbMat);
         pcb.castShadow = true;
         pcb.receiveShadow = true;
@@ -152,7 +168,13 @@ export class IMUVisualizer {
         // Merge all gold pins into a single mesh
         const mergedGold = this._mergeGeometries(goldGeos);
         if (mergedGold) {
-            const goldMat = new THREE.MeshPhongMaterial({ color: 0xb9913b, specular: 0xd8c27a, shininess: 58 });
+            const goldMat = new THREE.MeshPhongMaterial({
+                color: 0xffd86a,
+                specular: 0xffffc8,
+                shininess: 250,
+                emissive: 0x4a3308,
+                emissiveIntensity: 0.18,
+            });
             const goldMesh = new THREE.Mesh(mergedGold, goldMat);
             this.imuGroup.add(goldMesh);
         }
@@ -193,7 +215,7 @@ export class IMUVisualizer {
 
         const mergedDark = this._mergeGeometries(darkGeos);
         if (mergedDark) {
-            const darkMat = new THREE.MeshPhongMaterial({ color: 0x2d3136, specular: 0x565c62, shininess: 42 });
+            const darkMat = new THREE.MeshPhongMaterial({ color: 0x4b5157, specular: 0x8d969f, shininess: 64 });
             const darkMesh = new THREE.Mesh(mergedDark, darkMat);
             darkMesh.castShadow = true;
             this.imuGroup.add(darkMesh);
@@ -212,7 +234,7 @@ export class IMUVisualizer {
 
         const mergedSilver = this._mergeGeometries(silverGeos);
         if (mergedSilver) {
-            const silverMat = new THREE.MeshPhongMaterial({ color: 0xb2b7bd, specular: 0xe1e5e9, shininess: 62 });
+            const silverMat = new THREE.MeshPhongMaterial({ color: 0xc8cdd2, specular: 0xffffff, shininess: 96 });
             const silverMesh = new THREE.Mesh(mergedSilver, silverMat);
             silverMesh.castShadow = true;
             this.imuGroup.add(silverMesh);
@@ -225,12 +247,12 @@ export class IMUVisualizer {
         usbMouth.castShadow = false;
         this.imuGroup.add(usbMouth);
 
-        const usbTongueMat = new THREE.MeshPhongMaterial({ color: 0x2f6fa8, specular: 0x4c5f72, shininess: 20 });
+        const usbTongueMat = new THREE.MeshPhongMaterial({ color: 0x527da3, specular: 0x9eb3c8, shininess: 36 });
         const usbTongue = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.018, 0.15), usbTongueMat);
         usbTongue.position.set(usbFaceX - 0.004, TOP + 0.061, 0);
         this.imuGroup.add(usbTongue);
 
-        const usbLipMat = new THREE.MeshPhongMaterial({ color: 0xd5d9dd, specular: 0xffffff, shininess: 70 });
+        const usbLipMat = new THREE.MeshPhongMaterial({ color: 0xe1e5e9, specular: 0xffffff, shininess: 96 });
         const usbLipTop = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.012, 0.28), usbLipMat);
         usbLipTop.position.set(usbFaceX - 0.002, TOP + 0.107, 0);
         this.imuGroup.add(usbLipTop);
@@ -244,7 +266,7 @@ export class IMUVisualizer {
         }
         const mergedCaps = this._mergeGeometries(capGeos);
         if (mergedCaps) {
-            const capMat = new THREE.MeshPhongMaterial({ color: 0x8c7652, shininess: 28 });
+            const capMat = new THREE.MeshPhongMaterial({ color: 0xa68a5c, shininess: 42 });
             this.imuGroup.add(new THREE.Mesh(mergedCaps, capMat));
         }
 
@@ -278,7 +300,7 @@ export class IMUVisualizer {
         this.imuGroup.add(ledRed);
 
         // Reset button top (yellow)
-        const btnMat = new THREE.MeshPhongMaterial({ color: 0xb99a35, shininess: 36 });
+        const btnMat = new THREE.MeshPhongMaterial({ color: 0xd0b044, shininess: 56 });
         const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.03, 8), btnMat);
         btn.position.set(0.85, TOP + 0.055, -0.38);
         this.imuGroup.add(btn);
@@ -452,8 +474,28 @@ export class IMUVisualizer {
     _animate() {
         this._raf = requestAnimationFrame(() => this._animate());
         this._updateLedPulse(performance.now() * 0.001);
+        this._updateIntroCamera(performance.now());
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
+    }
+
+    _updateIntroCamera(now) {
+        if (!this.introActive) return;
+        const t = Math.min((now - this.introStartTime) / this.introDuration, 1);
+        const e = 1 - Math.pow(1 - t, 3);
+        const angle = this.introEndAngle - this.introOrbitAngle + this.introOrbitAngle * e;
+        const radius = this.introStartRadius + (this.introEndRadius - this.introStartRadius) * e;
+        const y = this.introStartHeight + (this.defaultCameraPosition.y - this.introStartHeight) * e;
+        this.camera.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+        this.controls.target.copy(this.introTargetEnd);
+        this.camera.lookAt(this.controls.target);
+        if (t >= 1) {
+            this.introActive = false;
+            this.controls.enabled = true;
+            this.controls.target.copy(this.introTargetEnd);
+            this.camera.position.copy(this.defaultCameraPosition);
+            this.controls.update();
+        }
     }
 
     _updateLedPulse(t) {
