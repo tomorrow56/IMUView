@@ -91,7 +91,7 @@ export class IMUVisualizer {
         const TOP = H / 2;
 
         // PCB base
-        const pcbMat = new THREE.MeshPhongMaterial({ color: 0x1565c0, specular: 0x333344, shininess: 35 });
+        const pcbMat = new THREE.MeshPhongMaterial({ color: 0x2f6fa8, specular: 0x4c5f72, shininess: 24 });
         const pcb = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), pcbMat);
         pcb.castShadow = true;
         pcb.receiveShadow = true;
@@ -151,7 +151,7 @@ export class IMUVisualizer {
         // Merge all gold pins into a single mesh
         const mergedGold = this._mergeGeometries(goldGeos);
         if (mergedGold) {
-            const goldMat = new THREE.MeshPhongMaterial({ color: 0xd4a017, specular: 0xffdd44, shininess: 100 });
+            const goldMat = new THREE.MeshPhongMaterial({ color: 0xb9913b, specular: 0xd8c27a, shininess: 58 });
             const goldMesh = new THREE.Mesh(mergedGold, goldMat);
             this.imuGroup.add(goldMesh);
         }
@@ -192,7 +192,7 @@ export class IMUVisualizer {
 
         const mergedDark = this._mergeGeometries(darkGeos);
         if (mergedDark) {
-            const darkMat = new THREE.MeshPhongMaterial({ color: 0x1a1a1a, specular: 0x333333, shininess: 80 });
+            const darkMat = new THREE.MeshPhongMaterial({ color: 0x2d3136, specular: 0x565c62, shininess: 42 });
             const darkMesh = new THREE.Mesh(mergedDark, darkMat);
             darkMesh.castShadow = true;
             this.imuGroup.add(darkMesh);
@@ -211,7 +211,7 @@ export class IMUVisualizer {
 
         const mergedSilver = this._mergeGeometries(silverGeos);
         if (mergedSilver) {
-            const silverMat = new THREE.MeshPhongMaterial({ color: 0xa8a8a8, specular: 0xffffff, shininess: 120 });
+            const silverMat = new THREE.MeshPhongMaterial({ color: 0xb2b7bd, specular: 0xe1e5e9, shininess: 62 });
             const silverMesh = new THREE.Mesh(mergedSilver, silverMat);
             silverMesh.castShadow = true;
             this.imuGroup.add(silverMesh);
@@ -226,27 +226,27 @@ export class IMUVisualizer {
         }
         const mergedCaps = this._mergeGeometries(capGeos);
         if (mergedCaps) {
-            const capMat = new THREE.MeshPhongMaterial({ color: 0x8d6e3a, shininess: 40 });
+            const capMat = new THREE.MeshPhongMaterial({ color: 0x8c7652, shininess: 28 });
             this.imuGroup.add(new THREE.Mesh(mergedCaps, capMat));
         }
 
         // LEDs (keep separate for emissive)
         const ledGreen = new THREE.Mesh(
             new THREE.BoxGeometry(0.06, 0.03, 0.04),
-            new THREE.MeshPhongMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.3, transparent: true, opacity: 0.85 })
+            new THREE.MeshPhongMaterial({ color: 0x4fae63, emissive: 0x4fae63, emissiveIntensity: 0.18, transparent: true, opacity: 0.82 })
         );
         ledGreen.position.set(0.55, TOP + 0.015, -0.38);
         this.imuGroup.add(ledGreen);
 
         const ledRed = new THREE.Mesh(
             new THREE.BoxGeometry(0.06, 0.03, 0.04),
-            new THREE.MeshPhongMaterial({ color: 0xff3300, emissive: 0xff3300, emissiveIntensity: 0.3, transparent: true, opacity: 0.85 })
+            new THREE.MeshPhongMaterial({ color: 0xc95d4d, emissive: 0xc95d4d, emissiveIntensity: 0.16, transparent: true, opacity: 0.82 })
         );
         ledRed.position.set(0.7, TOP + 0.015, -0.38);
         this.imuGroup.add(ledRed);
 
         // Reset button top (yellow)
-        const btnMat = new THREE.MeshPhongMaterial({ color: 0xccaa00, shininess: 60 });
+        const btnMat = new THREE.MeshPhongMaterial({ color: 0xb99a35, shininess: 36 });
         const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.03, 8), btnMat);
         btn.position.set(0.85, TOP + 0.055, -0.38);
         this.imuGroup.add(btn);
