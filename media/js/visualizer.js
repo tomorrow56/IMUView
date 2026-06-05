@@ -81,20 +81,34 @@ export class IMUVisualizer {
         rim.position.set(-4, 2, -5);
         this.scene.add(rim);
 
-        // Shadow receiver
+        // Soft shadow receiver below the animated surface
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(20, 20),
-            new THREE.ShadowMaterial({ opacity: 0.25 })
+            new THREE.ShadowMaterial({ opacity: 0.16 })
         );
         floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -1.2;
+        floor.position.y = -1.34;
         floor.receiveShadow = true;
         this.scene.add(floor);
 
-        // Grid
-        const grid = new THREE.GridHelper(12, 24, 0x21262d, 0x1a1f26);
-        grid.position.y = -1.21;
+        this._buildWaveFloor();
+    }
+
+    _buildWaveFloor() {
+        const geometry = new THREE.PlaneGeometry(18, 18, 44, 44);
+        geometry.rotateX(-Math.PI / 2);
+
+        const gridMat = new THREE.MeshBasicMaterial({
+            color: 0x1a1f26,
+            transparent: true,
+            opacity: 0.42,
+            wireframe: true,
+        });
+        const grid = new THREE.Mesh(geometry, gridMat);
+        grid.position.y = -1.23;
         this.scene.add(grid);
+
+        this.waveFloor = { geometry, grid };
     }
 
     // ── STM32 Blue Pill Board (merged geometry for performance) ─────────
@@ -473,10 +487,30 @@ export class IMUVisualizer {
 
     _animate() {
         this._raf = requestAnimationFrame(() => this._animate());
-        this._updateLedPulse(performance.now() * 0.001);
-        this._updateIntroCamera(performance.now());
+        const now = performance.now();
+        const seconds = now * 0.001;
+        this._updateLedPulse(seconds);
+        this._updateWaveFloor(seconds);
+        this._updateIntroCamera(now);
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
+    }
+
+    _updateWaveFloor(t) {
+        if (!this.waveFloor) return;
+
+        const pos = this.waveFloor.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+            const x = pos.getX(i);
+            const z = pos.getZ(i);
+            const y =
+                Math.sin(x * 1.15 + t * 1.15) * 0.055 +
+                Math.sin(z * 1.55 + t * 0.9) * 0.035 +
+                Math.sin((x + z) * 0.7 + t * 0.75) * 0.025;
+            pos.setY(i, y);
+        }
+        pos.needsUpdate = true;
+        this.waveFloor.geometry.computeVertexNormals();
     }
 
     _updateIntroCamera(now) {
