@@ -228,7 +228,7 @@ class App {
             const std = Math.sqrt(buf.reduce((a, e) => a + (e.v - mean) ** 2, 0) / buf.length);
             return { m: mean, s: std };
         };
-        const fmt = (m, s) => `${m.toFixed(1)} +/- ${s.toFixed(1)}`;
+        const fmt = (m, s) => `${m.toFixed(1)} ± ${s.toFixed(1)}`;
         const { ax, ay, az, gx, gy, gz } = this._statBufs;
         const [sa, sb, sc] = [ax, ay, az].map(calc);
         const [sd, se, sf] = [gx, gy, gz].map(calc);
