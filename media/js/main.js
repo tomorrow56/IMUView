@@ -168,27 +168,28 @@ class App {
         document.getElementById('demo-btn').textContent = 'Stop Demo';
         this._setStatus('Demo running', 'ok');
 
-        const BIAS_X = 0.5, BIAS_Y = -0.3, BIAS_Z = 0.2;
+        const BIAS_X = 0.6, BIAS_Y = -0.4, BIAS_Z = 0.2;
+        const noise = (s) => (Math.random() + Math.random() + Math.random() - 1.5) * s;
+
         this.simTimer = setInterval(() => {
             this.simTime += 0.02;
             const t = this.simTime;
-            const gauss = () => {
-                let u = 0, v = 0;
-                while (u === 0) u = Math.random();
-                while (v === 0) v = Math.random();
-                return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-            };
-            const gx = 30 * Math.sin(t * 0.7) + BIAS_X + gauss() * 0.5;
-            const gy = 20 * Math.cos(t * 0.5) + BIAS_Y + gauss() * 0.5;
-            const gz = 10 * Math.sin(t * 0.3) + BIAS_Z + gauss() * 0.5;
 
-            const roll = 20 * Math.sin(t * 0.7) * DEG2RAD;
-            const pitch = 15 * Math.cos(t * 0.5) * DEG2RAD;
-            const cr = Math.cos(roll), sr = Math.sin(roll);
-            const cp = Math.cos(pitch), sp = Math.sin(pitch);
-            const ax = -sp + gauss() * 0.01;
-            const ay = sr * cp + gauss() * 0.01;
-            const az = cr * cp + gauss() * 0.01;
+            const rollTrue  = 40 * Math.sin(0.45 * t);
+            const pitchTrue = 28 * Math.sin(0.28 * t + 1.1);
+            const rollR  = rollTrue * DEG2RAD;
+            const pitchR = pitchTrue * DEG2RAD;
+
+            // Gravity vector in body frame
+            const g = 9.81;
+            const ax = -g * Math.sin(pitchR) + noise(0.4);
+            const ay =  g * Math.cos(pitchR) * Math.sin(rollR) + noise(0.4);
+            const az =  g * Math.cos(pitchR) * Math.cos(rollR) + noise(0.4);
+
+            // True angular rates (time-derivative of angles) + bias + noise
+            const gx = 40 * 0.45 * Math.cos(0.45 * t) + BIAS_X + noise(1.5);
+            const gy = 28 * 0.28 * Math.cos(0.28 * t + 1.1) + BIAS_Y + noise(1.5);
+            const gz = 12 + BIAS_Z + noise(1.0);
 
             this._onIMUData({
                 ax, ay, az,

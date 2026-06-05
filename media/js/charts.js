@@ -148,7 +148,7 @@ export class RealtimeCharts {
     /** @param {{ ax,ay,az,gx,gy,gz,mx,my,mz }} imu  @param {{ roll,pitch,yaw }} orientation */
     update(imu, orientation) {
         push(this.accel,  [imu.ax, imu.ay, imu.az]);
-        push(this.gyro,   [imu.gxRaw ?? imu.gx, imu.gyRaw ?? imu.gy, imu.gzRaw ?? imu.gz]);
+        push(this.gyro,   [imu.gx, imu.gy, imu.gz]);
         push(this.orient, [orientation.roll, orientation.pitch, orientation.yaw]);
     }
 }
