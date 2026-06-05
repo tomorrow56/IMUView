@@ -92,7 +92,7 @@ export class IMUVisualizer {
 
         // PCB base
         const pcbMat = new THREE.MeshPhongMaterial({ color: 0x2f6fa8, specular: 0x4c5f72, shininess: 24 });
-        const pcb = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), pcbMat);
+        const pcb = new THREE.Mesh(this._makeRoundedBoardGeometry(W, H, D, 0.08), pcbMat);
         pcb.castShadow = true;
         pcb.receiveShadow = true;
         this.imuGroup.add(pcb);
@@ -114,23 +114,24 @@ export class IMUVisualizer {
         // LQFP48 chip pins (12 per side)
         const chipX = 0.15, chipZ = 0;
         const bodyW = 0.5, bodyD = 0.5;
-        const chipPinGeo = new THREE.BoxGeometry(0.06, 0.01, 0.025);
-        const chipPinGeoV = new THREE.BoxGeometry(0.025, 0.01, 0.06);
+        const chipPinY = TOP + 0.018;
+        const chipPinGeo = new THREE.BoxGeometry(0.06, 0.018, 0.025);
+        const chipPinGeoV = new THREE.BoxGeometry(0.025, 0.018, 0.06);
         const pitch = bodyD / 13;
         for (let i = 0; i < 12; i++) {
             const offset = (i - 5.5) * pitch;
             // Left
             goldGeos.push(chipPinGeo.clone().applyMatrix4(
-                new THREE.Matrix4().makeTranslation(chipX - bodyW/2 - 0.03, TOP + 0.005, chipZ + offset)));
+                new THREE.Matrix4().makeTranslation(chipX - bodyW/2 - 0.03, chipPinY, chipZ + offset)));
             // Right
             goldGeos.push(chipPinGeo.clone().applyMatrix4(
-                new THREE.Matrix4().makeTranslation(chipX + bodyW/2 + 0.03, TOP + 0.005, chipZ + offset)));
+                new THREE.Matrix4().makeTranslation(chipX + bodyW/2 + 0.03, chipPinY, chipZ + offset)));
             // Top
             goldGeos.push(chipPinGeoV.clone().applyMatrix4(
-                new THREE.Matrix4().makeTranslation(chipX + offset, TOP + 0.005, chipZ - bodyD/2 - 0.03)));
+                new THREE.Matrix4().makeTranslation(chipX + offset, chipPinY, chipZ - bodyD/2 - 0.03)));
             // Bottom
             goldGeos.push(chipPinGeoV.clone().applyMatrix4(
-                new THREE.Matrix4().makeTranslation(chipX + offset, TOP + 0.005, chipZ + bodyD/2 + 0.03)));
+                new THREE.Matrix4().makeTranslation(chipX + offset, chipPinY, chipZ + bodyD/2 + 0.03)));
         }
 
         // SWD header pins
@@ -217,6 +218,23 @@ export class IMUVisualizer {
             this.imuGroup.add(silverMesh);
         }
 
+        const usbFaceX = -W / 2 - 0.052;
+        const usbMouthMat = new THREE.MeshPhongMaterial({ color: 0x1f242a, specular: 0x111111, shininess: 18 });
+        const usbMouth = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.072, 0.25), usbMouthMat);
+        usbMouth.position.set(usbFaceX, TOP + 0.066, 0);
+        usbMouth.castShadow = false;
+        this.imuGroup.add(usbMouth);
+
+        const usbTongueMat = new THREE.MeshPhongMaterial({ color: 0x2f6fa8, specular: 0x4c5f72, shininess: 20 });
+        const usbTongue = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.018, 0.15), usbTongueMat);
+        usbTongue.position.set(usbFaceX - 0.004, TOP + 0.061, 0);
+        this.imuGroup.add(usbTongue);
+
+        const usbLipMat = new THREE.MeshPhongMaterial({ color: 0xd5d9dd, specular: 0xffffff, shininess: 70 });
+        const usbLipTop = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.012, 0.28), usbLipMat);
+        usbLipTop.position.set(usbFaceX - 0.002, TOP + 0.107, 0);
+        this.imuGroup.add(usbLipTop);
+
         // Capacitors (brown, merged)
         const capGeos = [];
         const caps = [[-0.3, 0.3], [-0.3, -0.3], [0.5, 0.3], [0.5, -0.15], [-0.7, 0.1], [-0.7, -0.1]];
@@ -234,7 +252,7 @@ export class IMUVisualizer {
         this.ledGreenMat = new THREE.MeshPhongMaterial({
             color: 0x4fae63,
             emissive: 0x4fae63,
-            emissiveIntensity: 0.34,
+            emissiveIntensity: 0.55,
             transparent: true,
             opacity: 0.95,
         });
@@ -248,7 +266,7 @@ export class IMUVisualizer {
         this.ledRedMat = new THREE.MeshPhongMaterial({
             color: 0xc95d4d,
             emissive: 0xc95d4d,
-            emissiveIntensity: 0.3,
+            emissiveIntensity: 0.5,
             transparent: true,
             opacity: 0.95,
         });
@@ -270,6 +288,36 @@ export class IMUVisualizer {
         // textSprite.position.set(chipX, TOP + 0.065, chipZ);
         // textSprite.scale.set(0.4, 0.15, 1);
         // this.imuGroup.add(textSprite);
+    }
+
+    _makeRoundedBoardGeometry(width, height, depth, radius) {
+        const x0 = -width / 2, x1 = width / 2;
+        const z0 = -depth / 2, z1 = depth / 2;
+        const r = Math.min(radius, width / 2, depth / 2);
+        const shape = new THREE.Shape();
+
+        shape.moveTo(x0 + r, z0);
+        shape.lineTo(x1 - r, z0);
+        shape.quadraticCurveTo(x1, z0, x1, z0 + r);
+        shape.lineTo(x1, z1 - r);
+        shape.quadraticCurveTo(x1, z1, x1 - r, z1);
+        shape.lineTo(x0 + r, z1);
+        shape.quadraticCurveTo(x0, z1, x0, z1 - r);
+        shape.lineTo(x0, z0 + r);
+        shape.quadraticCurveTo(x0, z0, x0 + r, z0);
+
+        const geometry = new THREE.ExtrudeGeometry(shape, {
+            depth: height,
+            bevelEnabled: true,
+            bevelThickness: 0.006,
+            bevelSize: 0.006,
+            bevelSegments: 2,
+            curveSegments: 8,
+        });
+        geometry.translate(0, 0, -height / 2);
+        geometry.rotateX(-Math.PI / 2);
+        geometry.computeVertexNormals();
+        return geometry;
     }
 
     _mergeGeometries(geos) {
@@ -410,11 +458,11 @@ export class IMUVisualizer {
 
     _updateLedPulse(t) {
         if (this.ledGreenMat) {
-            this.ledGreenMat.emissiveIntensity = 0.28 + 0.42 * (0.5 + 0.5 * Math.sin(t * 4.2));
+            this.ledGreenMat.emissiveIntensity = 0.45 + 0.75 * (0.5 + 0.5 * Math.sin(t * 4.2));
         }
         if (this.ledRedMat) {
             const blink = (Math.sin(t * 9.5) > 0.72) ? 1 : 0;
-            this.ledRedMat.emissiveIntensity = 0.18 + 0.58 * blink;
+            this.ledRedMat.emissiveIntensity = 0.35 + 0.95 * blink;
         }
     }
 
