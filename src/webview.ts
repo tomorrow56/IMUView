@@ -30,12 +30,6 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
 <body>
     <div id="app">
         <header id="header">
-            <div id="title-bar">
-                <div id="title-left">
-                    <h1>IMU Orientation Viewer</h1>
-                </div>
-            </div>
-
             <div id="connection-controls" class="toolbar-row">
                 <div class="toolbar-group">
                     <span class="group-label">Connection</span>
