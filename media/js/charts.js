@@ -6,7 +6,22 @@ const BASE_OPTS = {
     animation: false,
     interaction: { mode: 'index', intersect: false },
     elements: { point: { radius: 0 }, line: { borderWidth: 1.35 } },
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            enabled: true,
+            animation: false,
+            displayColors: true,
+            backgroundColor: 'rgba(31,35,40,0.9)',
+            titleFont: { size: 11 },
+            bodyFont: { size: 11 },
+            padding: 8,
+            callbacks: {
+                title: () => '',
+                label: (ctx) => `${ctx.dataset.label}: ${Number(ctx.parsed.y).toFixed(2)}`,
+            },
+        },
+    },
     scales: {
         x: { display: false },
         y: {
@@ -17,8 +32,9 @@ const BASE_OPTS = {
     },
 };
 
-function makeDataset(color) {
+function makeDataset(color, label) {
     return {
+        label,
         data: new Array(MAX_PTS).fill(0),
         borderColor: color,
         fill: false,
@@ -26,13 +42,13 @@ function makeDataset(color) {
     };
 }
 
-function buildChart(id, colors) {
+function buildChart(id, series) {
     const ctx = document.getElementById(id).getContext('2d');
     return new Chart(ctx, {
         type: 'line',
         data: {
             labels: new Array(MAX_PTS).fill(''),
-            datasets: colors.map(makeDataset),
+            datasets: series.map(({ color, label }) => makeDataset(color, label)),
         },
         options: BASE_OPTS,
     });
@@ -140,9 +156,21 @@ export class MagCalChart {
 
 export class RealtimeCharts {
     init() {
-        this.accel  = buildChart('accel-chart',  ['rgba(181,82,82,0.88)', '#4f8f68', 'rgba(79,120,168,0.9)']);
-        this.gyro   = buildChart('gyro-chart',   ['rgba(192,107,107,0.86)', 'rgba(109,165,124,0.9)', 'rgba(110,143,184,0.9)']);
-        this.orient = buildChart('orient-chart', ['rgba(184,135,63,0.9)', 'rgba(79,154,160,0.9)', 'rgba(155,111,157,0.88)']);
+        this.accel = buildChart('accel-chart', [
+            { label: 'ax', color: 'rgba(181,82,82,0.88)' },
+            { label: 'ay', color: '#4f8f68' },
+            { label: 'az', color: 'rgba(79,120,168,0.9)' },
+        ]);
+        this.gyro = buildChart('gyro-chart', [
+            { label: 'gx', color: 'rgba(192,107,107,0.86)' },
+            { label: 'gy', color: 'rgba(109,165,124,0.9)' },
+            { label: 'gz', color: 'rgba(110,143,184,0.9)' },
+        ]);
+        this.orient = buildChart('orient-chart', [
+            { label: 'Roll', color: 'rgba(184,135,63,0.9)' },
+            { label: 'Pitch', color: 'rgba(79,154,160,0.9)' },
+            { label: 'Yaw', color: 'rgba(155,111,157,0.88)' },
+        ]);
     }
 
     /** @param {{ ax,ay,az,gx,gy,gz,mx,my,mz }} imu  @param {{ roll,pitch,yaw }} orientation */

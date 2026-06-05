@@ -252,10 +252,10 @@ export class IMUVisualizer {
         this.imuGroup.add(btn);
 
         // Chip label
-        const textSprite = this._makeChipLabel('STM32F103');
-        textSprite.position.set(chipX, TOP + 0.065, chipZ);
-        textSprite.scale.set(0.4, 0.15, 1);
-        this.imuGroup.add(textSprite);
+        // const textSprite = this._makeChipLabel('STM32F103');
+        // textSprite.position.set(chipX, TOP + 0.065, chipZ);
+        // textSprite.scale.set(0.4, 0.15, 1);
+        // this.imuGroup.add(textSprite);
     }
 
     _mergeGeometries(geos) {
