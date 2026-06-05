@@ -4,7 +4,7 @@ import { RealtimeCharts } from './charts.js';
 
 const vscode = acquireVsCodeApi();
 const DEG2RAD = Math.PI / 180;
-const CHART_THROTTLE_MS = 33;
+const CHART_THROTTLE_MS = 100;
 const STAT_WINDOW_MS = 5000;
 
 class App {
