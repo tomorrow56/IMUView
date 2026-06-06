@@ -83,7 +83,7 @@ export class IMUVisualizer {
 
         // Soft shadow receiver below the animated surface
         const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(20, 20),
+            new THREE.PlaneGeometry(30, 30),
             new THREE.ShadowMaterial({ opacity: 0.16 })
         );
         floor.rotation.x = -Math.PI / 2;
@@ -95,7 +95,7 @@ export class IMUVisualizer {
     }
 
     _buildWaveFloor() {
-        const geometry = new THREE.PlaneGeometry(18, 18, 44, 44);
+        const geometry = new THREE.PlaneGeometry(28, 28, 56, 56);
         geometry.rotateX(-Math.PI / 2);
 
         const gridMat = new THREE.MeshBasicMaterial({
@@ -165,10 +165,10 @@ export class IMUVisualizer {
         }
 
         // SWD header pins
-        for (let i = 0; i < 4; i++) {
-            goldGeos.push(pinGeo.clone().applyMatrix4(
-                new THREE.Matrix4().makeTranslation(W/2 - 0.1, TOP + 0.04, (i - 1.5) * 0.08)));
-        }
+        // for (let i = 0; i < 4; i++) {
+        //     goldGeos.push(pinGeo.clone().applyMatrix4(
+        //         new THREE.Matrix4().makeTranslation(W/2 - 0.1, TOP + 0.04, (i - 1.5) * 0.08)));
+        // }
 
         // Jumper pins (2 groups x 3 pins)
         for (let i = 0; i < 2; i++) {
