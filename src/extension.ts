@@ -7,6 +7,14 @@ export function activate(context: vscode.ExtensionContext) {
         IMUViewerPanel.createOrShow(context.extensionUri);
     });
     context.subscriptions.push(command);
+
+    // Status bar button
+    const statusBtn = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    statusBtn.text = '$(circuit-board) IMU';
+    statusBtn.tooltip = 'Open IMU Orientation Viewer';
+    statusBtn.command = 'imuViewer.open';
+    statusBtn.show();
+    context.subscriptions.push(statusBtn);
 }
 
 class IMUViewerPanel {

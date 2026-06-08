@@ -4,6 +4,10 @@
   "description": "Real-time IMU orientation visualization with 3D view and sensor charts",
   "version": "0.1.0",
   "publisher": "imu-viewer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imu-viewer/imu-viewer"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
