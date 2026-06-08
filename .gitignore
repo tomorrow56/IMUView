@@ -3,3 +3,4 @@ dist/
 *.vsix
 .vscode-test/
 reference/
+项目记录.md
