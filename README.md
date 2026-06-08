@@ -4,10 +4,9 @@
   <img src="screenshoot/logo.png" alt="IMU Orientation Viewer" width="200">
 </p>
 
-[中文文档](README_CN.md)
+[English](README.md) | [中文](README_CN.md)
 
 A VSCode extension for real-time IMU sensor visualization. Connect your hardware via USB serial, watch orientation come alive in 3D, and debug sensor data with live charts — all without leaving your editor.
-
 
 ![Demo](docs/demo.gif)
 
