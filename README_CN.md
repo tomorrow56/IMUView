@@ -1,8 +1,13 @@
 # IMU Orientation Viewer
 
-一个 VSCode 插件，用于实时可视化 IMU 传感器数据。通过 USB 串口连接你的硬件，在编辑器内直接观察 3D 姿态旋转、调试传感器波形——无需切换窗口。
+<p align="center">
+  <img src="screenshoot/logo.png" alt="IMU Orientation Viewer" width="200">
+</p>
 
 [English](README.md)
+
+一个 VSCode 插件，用于实时可视化 IMU 传感器数据。通过 USB 串口连接你的硬件，在编辑器内直接观察 3D 姿态旋转、调试传感器波形——无需切换窗口。
+
 
 ![Demo](docs/demo.gif)
 
