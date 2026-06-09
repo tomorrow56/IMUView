@@ -1,61 +1,88 @@
-# IMU Orientation Viewer
+# IMU View
 
 <p align="center">
-  <img src="screenshoot/logo.png" alt="IMU Orientation Viewer" width="400">
+  <img src="screenshoot/logo.png" alt="IMU View" width="400">
 </p>
 
 [English](README.md) | [中文](README_CN.md)
 
-一个 VSCode 插件，用于实时可视化 IMU 传感器数据。通过 USB 串口连接你的硬件，在编辑器内直接观察 3D 姿态旋转、调试传感器波形——无需切换窗口。
+在 VS Code 里实时可视化 IMU 数据。3D 姿态、实时图表、11 种协议预设——接上板子就能用。
 
-## 功能亮点
+## 功能
 
-- **3D 姿态可视化** — 3D模型随传感器融合输出实时旋转
-- **4 种融合算法** — 一键切换：纯加速度计、互补滤波、Madgwick、扩展卡尔曼滤波（EKF）
-- **实时传感器图表** — 加速度计、陀螺仪、姿态角波形实时更新
-- **串口直连** — 基于 Node.js `serialport`，无浏览器兼容限制
-- **Demo 模式** — 物理仿真 IMU 数据，无硬件也能体验完整功能
-- **陀螺仪量程配置** — 支持 125～2000 dps 满量程设置
+- **3D 姿态** — 模型实时旋转
+- **4 种融合算法** — 纯加速度计、互补滤波、Madgwick、EKF
+- **实时图表** — 加速度 / 角速度 / 欧拉角，支持暂停和清空
+- **11 种协议预设** — MPU6050、WitMotion、ICM-20948、VectorNav、ANO、GPCHC、Xsens 等
+- **自定义协议** — JSON 配置任意二进制格式，支持校验
+- **串口直连** — USB 直接连接，无需浏览器
+- **Demo 模式** — 无硬件也能体验
 
 ## 安装
 
-1. 打开 VS Code
-2. 进入扩展面板（`Ctrl+Shift+X`）
-3. 搜索 **"IMU View"**
-4. 点击 **安装**
+1. 扩展面板（`Ctrl+Shift+X`）
+2. 搜索 **"IMU View"**
+3. 安装
 
-## 快速开始
+## 使用
 
-1. 打开命令面板（`Ctrl+Shift+P`）
-2. 输入 `IMU Viewer: Open`
-3. 选择串口和波特率
-4. 点击 **Connect**
+点击 Activity Bar 的 **IMU** 图标，3D 面板自动打开。
 
-没有硬件？点击 **Demo Mode** 立即体验。
+- 选择协议预设或加载自定义 JSON
+- 选串口和波特率 → Connect
+- 没硬件？点 **Demo Mode**
 
-## 数据协议
+## 协议
 
-固件需按以下格式发送 **20 字节二进制包**：
+默认二进制包（20 字节）：
 
 ```
-0xAA 0xFF [ax_L ax_H] [ay_L ay_H] [az_L az_H]
-           [gx_L gx_H] [gy_L gy_H] [gz_L gz_H]
-           [mx_L mx_H] [my_L my_H] [mz_L mz_H]
+[0xAA 0xFF] [ax ay az gx gy gz mx my mz] (int16 小端 × 9)
 ```
 
-- 同步头：`0xAA 0xFF`
-- 数据：有符号 int16，小端序
-- 无磁力计时每轴发送 `0x0000`
+### 预设列表
 
-## 姿态融合算法
+| 预设 | 轴数 | 校验 |
+|------|------|------|
+| Default 9-axis | 加速度 + 陀螺仪 + 磁力计 | — |
+| MPU6050 | 6 轴（大端） | — |
+| WitMotion JY901 | 加速度 | sum8 |
+| BMI160 | 6 轴 | — |
+| ICM-20948 | 9 轴（大端） | — |
+| LSM6DSL | 6 轴 | — |
+| ANO 匿名协议 | 6 轴 | sum8 |
+| Xsens MTi | 9 轴 float32 | — |
+| VectorNav VNBIN | 9 轴 float32 | CRC16 |
+| GPCHC | 6 轴 float32 | XOR |
+| NMEA PASHR | 6 轴 缩放 | XOR |
 
-| 算法 | 原理 | 适用场景 |
-|------|------|----------|
-| Accel Only | 加速度计/磁力计直接解算 | 静态姿态，无需陀螺仪 |
-| Complementary | 陀螺仪高通 + 加速度计低通互补 | 简单快速，计算量低 |
-| Madgwick | 梯度下降四元数融合 | 精度与速度平衡 |
-| EKF | 扩展卡尔曼滤波，4×4 状态矩阵 | 最高精度，自动估计陀螺偏置 |
+### 自定义 JSON
 
-## 许可证
+```json
+{
+  "name": "My Protocol",
+  "sync": [170, 255],
+  "channels": [
+    { "name": "ax", "type": "int16", "endian": "le", "scale": 1, "role": "ax" },
+    { "name": "ay", "type": "int16", "endian": "le", "scale": 1, "role": "ay" },
+    { "name": "az", "type": "int16", "endian": "le", "scale": 1, "role": "az" }
+  ],
+  "checksum": { "type": "xor", "scope": "data" }
+}
+```
+
+支持类型：`int8` `uint8` `int16` `uint16` `int32` `uint32` `float32`  
+校验方式：`sum8` `xor` `crc8` `crc16`
+
+## 融合算法
+
+| 算法 | 适用场景 |
+|------|----------|
+| Accel Only | 静态，无陀螺仪 |
+| Complementary | 计算量低 |
+| Madgwick | 均衡 |
+| EKF | 最高精度 |
+
+## License
 
 MIT

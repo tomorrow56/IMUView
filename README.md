@@ -1,60 +1,87 @@
-# IMU Orientation Viewer
+# IMU View
 
 <p align="center">
-  <img src="screenshoot/logo.png" alt="IMU Orientation Viewer" width="400">
+  <img src="screenshoot/logo.png" alt="IMU View" width="400">
 </p>
 
 [English](README.md) | [中文](README_CN.md)
 
-A VSCode extension for real-time IMU sensor visualization. Connect your hardware via USB serial, watch orientation come alive in 3D, and debug sensor data with live charts — all without leaving your editor.
+Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 protocol presets — plug in your board and go.
 
 ## Features
 
-- **3D Orientation** — 3D model rotates in real-time based on sensor fusion output
-- **4 Fusion Algorithms** — Switch between Accel-only, Complementary, Madgwick, and Extended Kalman Filter with one click
-- **Live Sensor Charts** — Accelerometer, gyroscope, and orientation angles updating in real-time
-- **Serial Port Integration** — Direct USB serial connection via Node.js `serialport`, no browser limitations
-- **Demo Mode** — Physically accurate simulated IMU data for testing without hardware
-- **Gyro Range Config** — Supports 125 to 2000 dps full-scale settings
+- **3D Orientation** — model rotates in real-time
+- **4 Fusion Algorithms** — Accel-only, Complementary, Madgwick, EKF
+- **Live Charts** — Accel / Gyro / Euler angles with pause & clear
+- **11 Protocol Presets** — MPU6050, WitMotion, ICM-20948, VectorNav, ANO, GPCHC, Xsens, and more
+- **Custom Protocol** — Load any binary format via JSON config with checksum support
+- **Serial Port** — Direct USB connection, no browser needed
+- **Demo Mode** — Test without hardware
 
 ## Install
 
-1. Open VS Code
-2. Go to Extensions (`Ctrl+Shift+X`)
-3. Search for **"IMU View"**
-4. Click **Install**
+1. Extensions panel (`Ctrl+Shift+X`)
+2. Search **"IMU View"**
+3. Install
 
-## Quick Start
+## Usage
 
-1. Open Command Palette (`Ctrl+Shift+P`)
-2. Run `IMU Viewer: Open`
-3. Select your COM port and baud rate
-4. Click **Connect**
+Click the **IMU** icon in the Activity Bar. The 3D panel opens automatically.
 
-No hardware? Click **Demo Mode** to see it in action.
+- Select protocol preset or load custom JSON
+- Pick your COM port and baud rate → Connect
+- No hardware? Hit **Demo Mode**
 
-## Data Protocol
+## Protocol
 
-The firmware should send a **20-byte binary packet** per reading:
+Default binary packet (20 bytes):
 
 ```
-0xAA 0xFF [ax_L ax_H] [ay_L ay_H] [az_L az_H]
-           [gx_L gx_H] [gy_L gy_H] [gz_L gz_H]
-           [mx_L mx_H] [my_L my_H] [mz_L mz_H]
+[0xAA 0xFF] [ax ay az gx gy gz mx my mz] (int16 LE × 9)
 ```
 
-- Sync bytes: `0xAA 0xFF`
-- Values: signed int16, little-endian
-- Magnetometer: send `0x0000` per axis if not present
+### Presets
 
-## Supported Filters
+| Preset | Axes | Checksum |
+|--------|------|----------|
+| Default 9-axis | accel + gyro + mag | — |
+| MPU6050 | 6-axis (BE) | — |
+| WitMotion JY901 | accel | sum8 |
+| BMI160 | 6-axis | — |
+| ICM-20948 | 9-axis (BE) | — |
+| LSM6DSL | 6-axis | — |
+| ANO Protocol | 6-axis | sum8 |
+| Xsens MTi | 9-axis float32 | — |
+| VectorNav VNBIN | 9-axis float32 | CRC16 |
+| GPCHC | 6-axis float32 | XOR |
+| NMEA PASHR | 6-axis scaled | XOR |
 
-| Filter | Description | Use Case |
-|--------|-------------|----------|
-| Accel Only | Direct acc/mag angle calculation | Static orientation, no gyro needed |
-| Complementary | High-pass gyro + low-pass accel blend | Simple, low compute |
-| Madgwick | Gradient descent quaternion fusion | Good balance of speed and accuracy |
-| EKF | Extended Kalman Filter with full 4×4 state | Best accuracy, handles bias drift |
+### Custom JSON
+
+```json
+{
+  "name": "My Protocol",
+  "sync": [170, 255],
+  "channels": [
+    { "name": "ax", "type": "int16", "endian": "le", "scale": 1, "role": "ax" },
+    { "name": "ay", "type": "int16", "endian": "le", "scale": 1, "role": "ay" },
+    { "name": "az", "type": "int16", "endian": "le", "scale": 1, "role": "az" }
+  ],
+  "checksum": { "type": "xor", "scope": "data" }
+}
+```
+
+Supported types: `int8` `uint8` `int16` `uint16` `int32` `uint32` `float32`  
+Checksum: `sum8` `xor` `crc8` `crc16`
+
+## Filters
+
+| Filter | Best for |
+|--------|----------|
+| Accel Only | Static, no gyro |
+| Complementary | Low compute |
+| Madgwick | Balanced |
+| EKF | Best accuracy |
 
 ## License
 
