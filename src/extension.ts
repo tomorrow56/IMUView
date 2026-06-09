@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { SerialConnection } from './serial';
 import { getWebviewContent } from './webview';
+import { ProtocolConfig, DEFAULT_PROTOCOL, validateProtocol } from './protocol';
 
 export function activate(context: vscode.ExtensionContext) {
     const command = vscode.commands.registerCommand('imuViewer.open', () => {
@@ -8,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(command);
 
-    const sidebarProvider = new IMUSidebarProvider(context.extensionUri);
+    const sidebarProvider = new IMUSidebarProvider(context.extensionUri, context);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider('imuViewer.launcher', sidebarProvider)
     );
@@ -19,8 +20,13 @@ export function activate(context: vscode.ExtensionContext) {
 class IMUSidebarProvider implements vscode.WebviewViewProvider {
     private view?: vscode.WebviewView;
     private serial: SerialConnection | null = null;
+    private protocol: ProtocolConfig = DEFAULT_PROTOCOL;
+    private context: vscode.ExtensionContext;
 
-    constructor(private readonly extensionUri: vscode.Uri) {}
+    constructor(private readonly extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
+        this.context = context;
+        this.loadSavedProtocolSync();
+    }
 
     resolveWebviewView(webviewView: vscode.WebviewView) {
         this.view = webviewView;
@@ -32,6 +38,11 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
 
         // Auto-open editor panel when sidebar first loads
         this.ensurePanel();
+
+        // Notify sidebar of current protocol name
+        if (this.protocol.name !== DEFAULT_PROTOCOL.name) {
+            webviewView.webview.postMessage({ command: 'protocolLoaded', name: this.protocol.name });
+        }
 
         webviewView.onDidChangeVisibility(() => {
             if (webviewView.visible) {
@@ -70,6 +81,15 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             case 'reset':
                 IMUViewerPanel.postMessage({ command: 'reset' });
                 break;
+            case 'loadProtocol':
+                await this.loadProtocolFile();
+                break;
+            case 'resetProtocol':
+                this.protocol = DEFAULT_PROTOCOL;
+                this.sendStatus('Protocol: default', 'ok');
+                this.view?.webview.postMessage({ command: 'protocolLoaded', name: this.protocol.name });
+                this.saveProtocolPath(undefined);
+                break;
         }
     }
 
@@ -95,7 +115,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
         try {
             await this.disconnect();
             this.ensurePanel();
-            this.serial = new SerialConnection(port, baudRate, (data) => {
+            this.serial = new SerialConnection(port, baudRate, this.protocol, (data) => {
                 IMUViewerPanel.postMessage({ command: 'imuData', data });
             });
             await this.serial.open();
@@ -122,6 +142,73 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     private ensurePanel() {
         if (!IMUViewerPanel.currentPanel) {
             vscode.commands.executeCommand('imuViewer.open');
+        }
+    }
+
+    private async loadProtocolFile() {
+        const files = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            filters: { 'Protocol JSON': ['json'] },
+            title: 'Select IMU Protocol File',
+        });
+        if (!files || files.length === 0) return;
+
+        try {
+            const content = await vscode.workspace.fs.readFile(files[0]);
+            const config = JSON.parse(Buffer.from(content).toString('utf-8'));
+            const error = validateProtocol(config);
+            if (error) {
+                this.sendStatus(`Protocol error: ${error}`, 'error');
+                return;
+            }
+            this.protocol = config;
+            if (this.serial) { this.serial.updateConfig(config); }
+            this.sendStatus(`Protocol: ${config.name || 'custom'}`, 'ok');
+            this.view?.webview.postMessage({ command: 'protocolLoaded', name: config.name || 'custom' });
+            // Save path for auto-load on next startup
+            this.saveProtocolPath(files[0].fsPath);
+        } catch (e: any) {
+            this.sendStatus(`Failed to load: ${e.message}`, 'error');
+        }
+    }
+
+    private loadSavedProtocolSync() {
+        const savedPath = this.getSavedProtocolPath();
+        if (!savedPath) return;
+
+        try {
+            const fs = require('fs');
+            const content = fs.readFileSync(savedPath, 'utf-8');
+            const config = JSON.parse(content);
+            const error = validateProtocol(config);
+            if (!error) {
+                this.protocol = config;
+            } else {
+                this.saveProtocolPath(undefined);
+            }
+        } catch {
+            this.saveProtocolPath(undefined);
+        }
+    }
+
+    private getSavedProtocolPath(): string | undefined {
+        const configPath = vscode.Uri.joinPath(this.extensionUri, '.imu-protocol-path');
+        try {
+            const fs = require('fs');
+            const content = fs.readFileSync(configPath.fsPath, 'utf-8').trim();
+            return content || undefined;
+        } catch {
+            return undefined;
+        }
+    }
+
+    private saveProtocolPath(filePath: string | undefined) {
+        const configPath = vscode.Uri.joinPath(this.extensionUri, '.imu-protocol-path');
+        const fs = require('fs');
+        if (filePath) {
+            fs.writeFileSync(configPath.fsPath, filePath, 'utf-8');
+        } else {
+            try { fs.unlinkSync(configPath.fsPath); } catch {}
         }
     }
 
@@ -203,6 +290,17 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
         </div>
     </div>
 
+    <div class="section">
+        <div class="section-title">Protocol</div>
+        <div class="row">
+            <span id="protocol-name" style="flex:1;font-size:11px;">Default Protocol</span>
+        </div>
+        <div class="btn-row">
+            <button id="load-protocol-btn" class="btn-primary">Load JSON</button>
+            <button id="reset-protocol-btn" class="btn-primary">Default</button>
+        </div>
+    </div>
+
     <div class="status">
         <span class="dot idle" id="status-dot"></span>
         <span id="status-text">Disconnected</span>
@@ -258,6 +356,14 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             vscode.postMessage({ command: 'setGyroRange', value: gyroSel.value });
         });
 
+        document.getElementById('load-protocol-btn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'loadProtocol' });
+        });
+
+        document.getElementById('reset-protocol-btn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'resetProtocol' });
+        });
+
         window.addEventListener('message', (e) => {
             const msg = e.data;
             switch (msg.command) {
@@ -281,6 +387,9 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                 case 'status':
                     document.getElementById('status-text').textContent = msg.text;
                     document.getElementById('status-dot').className = 'dot ' + msg.type;
+                    break;
+                case 'protocolLoaded':
+                    document.getElementById('protocol-name').textContent = msg.name;
                     break;
             }
         });

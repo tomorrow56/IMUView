@@ -1,0 +1,15 @@
+{
+  "name": "Default Protocol (default)",
+  "sync": [170, 255],
+  "channels": [
+    { "name": "ax", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "ax" },
+    { "name": "ay", "type": "int16", "endian": "le", "scale": 1, "role": "ay" },
+    { "name": "az", "type": "int16", "endian": "le", "scale": 1, "role": "az" },
+    { "name": "gx", "type": "int16", "endian": "le", "scale": 1, "role": "gx" },
+    { "name": "gy", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "gy" },
+    { "name": "gz", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "gz" },
+    { "name": "mx", "type": "int16", "endian": "le", "scale": 1, "role": "mx" },
+    { "name": "my", "type": "int16", "endian": "le", "scale": 1, "role": "my" },
+    { "name": "mz", "type": "int16", "endian": "le", "scale": 1, "role": "mz" }
+  ]
+}

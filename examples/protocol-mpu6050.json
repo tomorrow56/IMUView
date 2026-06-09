@@ -1,0 +1,12 @@
+{
+  "name": "MPU6050 6-axis (no mag)",
+  "sync": [170, 255],
+  "channels": [
+    { "name": "ax", "type": "int16", "endian": "be", "scale": 1, "role": "ax" },
+    { "name": "ay", "type": "int16", "endian": "be", "scale": 1, "role": "ay" },
+    { "name": "az", "type": "int16", "endian": "be", "scale": 1, "role": "az" },
+    { "name": "gx", "type": "int16", "endian": "be", "scale": 1, "role": "gx" },
+    { "name": "gy", "type": "int16", "endian": "be", "scale": 1, "role": "gy" },
+    { "name": "gz", "type": "int16", "endian": "be", "scale": 1, "role": "gz" }
+  ]
+}

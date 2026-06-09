@@ -86,7 +86,11 @@ class App {
     }
 
     _startDemo() {
-        if (this.isDemo) return;
+        // Clear any existing timer first (handles F5 restart without stop)
+        if (this.simTimer) {
+            clearInterval(this.simTimer);
+            this.simTimer = null;
+        }
         this.isDemo = true;
         this.simTime = 0;
         this.lastTime = null;
