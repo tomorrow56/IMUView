@@ -111,7 +111,7 @@ export class IMUVisualizer {
         this.waveFloor = { geometry, grid };
     }
 
-    // ── STM32 Blue Pill Board (merged geometry for performance) ─────────
+    // ──Board (merged geometry for performance) ─────────
 
     _buildBoard() {
         this.imuGroup = new THREE.Group();
@@ -196,7 +196,7 @@ export class IMUVisualizer {
         // Merge all dark/black geometry (chip body, pin bases, jumper caps, passives)
         const darkGeos = [];
 
-        // STM32 chip body
+        // chip body
         darkGeos.push(new THREE.BoxGeometry(bodyW, 0.06, bodyD).applyMatrix4(
             new THREE.Matrix4().makeTranslation(chipX, TOP + 0.03, chipZ)));
 
@@ -318,12 +318,6 @@ export class IMUVisualizer {
         const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.03, 8), btnMat);
         btn.position.set(0.85, TOP + 0.055, -0.38);
         this.imuGroup.add(btn);
-
-        // Chip label
-        // const textSprite = this._makeChipLabel('STM32F103');
-        // textSprite.position.set(chipX, TOP + 0.065, chipZ);
-        // textSprite.scale.set(0.4, 0.15, 1);
-        // this.imuGroup.add(textSprite);
     }
 
     _makeRoundedBoardGeometry(width, height, depth, radius) {

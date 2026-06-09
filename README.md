@@ -1,23 +1,28 @@
 # IMU Orientation Viewer
 
 <p align="center">
-  <img src="screenshoot/logo.png" alt="IMU Orientation Viewer" width="200">
+  <img src="screenshoot/logo.png" alt="IMU Orientation Viewer" width="400">
 </p>
 
 [English](README.md) | [中文](README_CN.md)
 
 A VSCode extension for real-time IMU sensor visualization. Connect your hardware via USB serial, watch orientation come alive in 3D, and debug sensor data with live charts — all without leaving your editor.
 
-![Demo](docs/demo.gif)
-
 ## Features
 
-- **3D Orientation** — STM32-style board model rotates in real-time based on sensor fusion output
+- **3D Orientation** — 3D model rotates in real-time based on sensor fusion output
 - **4 Fusion Algorithms** — Switch between Accel-only, Complementary, Madgwick, and Extended Kalman Filter with one click
 - **Live Sensor Charts** — Accelerometer, gyroscope, and orientation angles updating in real-time
 - **Serial Port Integration** — Direct USB serial connection via Node.js `serialport`, no browser limitations
 - **Demo Mode** — Physically accurate simulated IMU data for testing without hardware
 - **Gyro Range Config** — Supports 125 to 2000 dps full-scale settings
+
+## Install
+
+1. Open VS Code
+2. Go to Extensions (`Ctrl+Shift+X`)
+3. Search for **"IMU View"**
+4. Click **Install**
 
 ## Quick Start
 
@@ -42,8 +47,6 @@ The firmware should send a **20-byte binary packet** per reading:
 - Values: signed int16, little-endian
 - Magnetometer: send `0x0000` per axis if not present
 
-Compatible firmware: [stm32-simple-imu-reading](https://github.com/Steppeschool/stm32-simple-imu-reading)
-
 ## Supported Filters
 
 | Filter | Description | Use Case |
@@ -52,33 +55,6 @@ Compatible firmware: [stm32-simple-imu-reading](https://github.com/Steppeschool/
 | Complementary | High-pass gyro + low-pass accel blend | Simple, low compute |
 | Madgwick | Gradient descent quaternion fusion | Good balance of speed and accuracy |
 | EKF | Extended Kalman Filter with full 4×4 state | Best accuracy, handles bias drift |
-
-## Build from Source
-
-```bash
-npm install
-npm run compile
-```
-
-Press `F5` in VSCode to launch the extension development host.
-
-## Tech Stack
-
-- **Extension**: TypeScript + Node.js `serialport` for serial communication
-- **3D Rendering**: Three.js with merged geometry for performance
-- **Charts**: Chart.js with throttled updates
-- **Filters**: Pure JavaScript implementations (no native dependencies)
-
-## Architecture
-
-```
-Extension (Node.js)              Webview (Chromium)
-┌──────────────────────┐        ┌───────────────────────────┐
-│ serialport            │        │ Three.js 3D viewport      │
-│ Binary protocol       │─ msg ─>│ Chart.js realtime graphs  │
-│ parser                │        │ EKF / Madgwick / etc.     │
-└──────────────────────┘        └───────────────────────────┘
-```
 
 ## License
 

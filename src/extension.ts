@@ -8,14 +8,31 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(command);
 
-    // Status bar button
-    const statusBtn = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBtn.text = '$(circuit-board) IMU';
-    statusBtn.tooltip = 'Open IMU Orientation Viewer';
-    statusBtn.command = 'imuViewer.open';
-    statusBtn.show();
-    context.subscriptions.push(statusBtn);
+    // Activity Bar launcher: when sidebar view becomes visible, open editor panel
+    const launcherProvider = new IMULauncherProvider(context.extensionUri);
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider('imuViewer.launcher', launcherProvider)
+    );
 }
+
+// ── Activity Bar Launcher ──────────────────────────────────────────────
+// Shows a simple "Open" button in the sidebar; clicking opens the main editor panel.
+
+class IMULauncherProvider implements vscode.WebviewViewProvider {
+    constructor(private readonly extensionUri: vscode.Uri) {}
+
+    resolveWebviewView(webviewView: vscode.WebviewView) {
+        vscode.commands.executeCommand('imuViewer.open');
+
+        webviewView.onDidChangeVisibility(() => {
+            if (webviewView.visible) {
+                vscode.commands.executeCommand('imuViewer.open');
+            }
+        });
+    }
+}
+
+// ── Editor Panel ───────────────────────────────────────────────────────
 
 class IMUViewerPanel {
     public static currentPanel: IMUViewerPanel | undefined;
@@ -35,7 +52,7 @@ class IMUViewerPanel {
 
         const panel = vscode.window.createWebviewPanel(
             IMUViewerPanel.viewType,
-            'IMU Orientation Viewer',
+            'IMU View',
             column || vscode.ViewColumn.One,
             {
                 enableScripts: true,
@@ -50,9 +67,7 @@ class IMUViewerPanel {
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this.panel = panel;
         this.panel.webview.html = getWebviewContent(this.panel.webview, extensionUri);
-
         this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
-
         this.panel.webview.onDidReceiveMessage(
             (msg) => this.handleMessage(msg),
             null,

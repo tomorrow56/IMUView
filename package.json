@@ -1,12 +1,12 @@
 {
-  "name": "imu-viewer",
-  "displayName": "IMU Orientation Viewer",
+  "name": "imu-view",
+  "displayName": "IMU View",
   "description": "Real-time IMU orientation visualization with 3D view and sensor charts",
-  "version": "0.1.0",
-  "publisher": "imu-viewer",
+  "version": "2.5.0",
+  "publisher": "charcoal141",
   "repository": {
     "type": "git",
-    "url": "https://github.com/imu-viewer/imu-viewer"
+    "url": "https://github.com/charcoal141/IMUView.git"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -18,9 +18,28 @@
     "commands": [
       {
         "command": "imuViewer.open",
-        "title": "IMU Viewer: Open"
+        "title": "IMU Viewer: Open",
+        "icon": "media/icon.svg"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "imu-view-container",
+          "title": "IMU View",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "imu-view-container": [
+        {
+          "id": "imuViewer.launcher",
+          "name": "IMU View",
+          "type": "webview"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "webpack --mode production",
