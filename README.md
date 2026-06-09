@@ -1,7 +1,7 @@
 # IMU View
 
 <p align="center">
-  <img src="screenshoot/logo.png" alt="IMU View" width="400">
+  <img src="screenshoot/logo.png" alt="IMU View" width="300">
 </p>
 
 [English](README.md) | [中文](README_CN.md)
