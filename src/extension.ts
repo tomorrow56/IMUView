@@ -135,6 +135,9 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             case 'selectPreset':
                 this.applyPreset(msg.preset);
                 break;
+            case 'openProtocolDoc':
+                vscode.env.openExternal(vscode.Uri.parse('https://github.com/charcoal141/IMUView#protocol'));
+                break;
         }
     }
 
@@ -277,21 +280,25 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
 <html>
 <head>
 <style>
-    body { font-family: var(--vscode-font-family, 'Segoe UI', sans-serif); font-size: 12px; padding: 10px; color: var(--vscode-foreground); }
-    .section { margin-bottom: 20px; }
-    .section-title { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--vscode-descriptionForeground); margin-bottom: 8px; }
-    .row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
-    label { font-size: 11px; color: var(--vscode-descriptionForeground); min-width: 35px; }
-    select { flex: 1; padding: 3px 5px; font-size: 11px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 3px; }
-    button { padding: 4px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; border: 1px solid var(--vscode-button-border, transparent); }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; overflow-x: hidden; }
+    body { margin: 0; font-family: var(--vscode-font-family, 'Segoe UI', sans-serif); font-size: 12px; padding: 14px 12px 46px; color: var(--vscode-foreground); }
+    .section { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-input-border)); }
+    .section:last-of-type { border-bottom: none; }
+    .section-title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--vscode-descriptionForeground); margin-bottom: 12px; }
+    .row { display: flex; flex-direction: column; align-items: stretch; gap: 5px; margin-bottom: 12px; }
+    label { font-size: 11px; color: var(--vscode-descriptionForeground); }
+    select { width: 100%; max-width: 100%; min-height: 28px; padding: 4px 7px; font-size: 12px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 4px; }
+    button { min-height: 28px; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid var(--vscode-button-border, transparent); }
     .btn-primary { background: var(--vscode-button-background); color: var(--vscode-button-foreground); }
     .btn-primary:hover { background: var(--vscode-button-hoverBackground); }
     .btn-ghost { background: transparent; color: var(--vscode-foreground); border: 1px solid var(--vscode-input-border); }
     .btn-ghost:hover { background: var(--vscode-list-hoverBackground); }
-    .btn-full { width: 100%; margin-top: 4px; }
-    .btn-row { display: flex; gap: 6px; margin-top: 4px; }
-    .btn-row button { flex: 1; }
-    .status { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--vscode-input-background); border-top: 1px solid var(--vscode-input-border); font-size: 11px; }
+    .btn-full { width: 100%; margin-top: 6px; }
+    .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-row button { flex: 1; min-width: 0; }
+    #protocol-name { display: block; width: 100%; min-height: 24px; padding: 5px 7px; border: 1px solid var(--vscode-input-border); border-radius: 4px; background: var(--vscode-input-background); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: var(--vscode-input-background); border-top: 1px solid var(--vscode-input-border); font-size: 11px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: #888; }
     .dot.ok { background: #4ec9b0; }
     .dot.error { background: #f44747; }
@@ -378,11 +385,12 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             </select>
         </div>
         <div class="row">
-            <span id="protocol-name" style="flex:1;font-size:11px;color:var(--vscode-descriptionForeground);">Default Protocol</span>
+            <span id="protocol-name">Default Protocol</span>
         </div>
         <div class="btn-row">
             <button id="load-protocol-btn" class="btn-primary">Load JSON</button>
         </div>
+        <button id="protocol-doc-btn" class="btn-ghost btn-full">Protocol Description</button>
     </div>
 
     <div class="status">
@@ -464,6 +472,10 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
 
         document.getElementById('load-protocol-btn').addEventListener('click', () => {
             vscode.postMessage({ command: 'loadProtocol' });
+        });
+
+        document.getElementById('protocol-doc-btn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'openProtocolDoc' });
         });
 
         window.addEventListener('message', (e) => {
