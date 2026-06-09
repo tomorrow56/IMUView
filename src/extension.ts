@@ -23,6 +23,14 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     private protocol: ProtocolConfig = DEFAULT_PROTOCOL;
     private context: vscode.ExtensionContext;
 
+    // State tracking for sync
+    private isConnected = false;
+    private isDemoRunning = false;
+    private currentFilter = 'ekf';
+    private currentGyroRange = '65.5';
+    private statusText = 'Disconnected';
+    private statusType = 'idle';
+
     constructor(private readonly extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
         this.context = context;
         this.loadSavedProtocolSync();
@@ -44,10 +52,28 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             webviewView.webview.postMessage({ command: 'protocolLoaded', name: this.protocol.name });
         }
 
+        // Sync full state after HTML loads
+        setTimeout(() => this.syncState(), 100);
+
         webviewView.onDidChangeVisibility(() => {
             if (webviewView.visible) {
                 this.ensurePanel();
+                this.syncState();
             }
+        });
+    }
+
+    private syncState() {
+        if (!this.view) return;
+        this.view.webview.postMessage({
+            command: 'syncState',
+            isConnected: this.isConnected,
+            isDemoRunning: this.isDemoRunning,
+            filter: this.currentFilter,
+            gyroRange: this.currentGyroRange,
+            statusText: this.statusText,
+            statusType: this.statusType,
+            protocolName: this.protocol.name,
         });
     }
 
@@ -64,17 +90,21 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                 break;
             case 'demo':
                 this.ensurePanel();
+                this.isDemoRunning = true;
                 IMUViewerPanel.postMessage({ command: 'startDemo', gyroRange: msg.gyroRange });
                 this.sendStatus('Demo running', 'ok');
                 break;
             case 'stopDemo':
+                this.isDemoRunning = false;
                 IMUViewerPanel.postMessage({ command: 'stopDemo' });
                 this.sendStatus('Disconnected', 'idle');
                 break;
             case 'setFilter':
+                this.currentFilter = msg.filter;
                 IMUViewerPanel.postMessage({ command: 'setFilter', filter: msg.filter });
                 break;
             case 'setGyroRange':
+                this.currentGyroRange = msg.value;
                 IMUViewerPanel.postMessage({ command: 'setGyroRange', value: msg.value });
                 if (this.serial) { this.serial.setScale(parseFloat(msg.value)); }
                 break;
@@ -119,6 +149,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                 IMUViewerPanel.postMessage({ command: 'imuData', data });
             });
             await this.serial.open();
+            this.isConnected = true;
             this.sendStatus('Connected', 'ok');
             this.view.webview.postMessage({ command: 'connected' });
         } catch (e: any) {
@@ -130,12 +161,15 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
         if (this.serial) {
             await this.serial.close();
             this.serial = null;
+            this.isConnected = false;
             this.sendStatus('Disconnected', 'idle');
             this.view?.webview.postMessage({ command: 'disconnected' });
         }
     }
 
     private sendStatus(text: string, type: string) {
+        this.statusText = text;
+        this.statusType = type;
         this.view?.webview.postMessage({ command: 'status', text, type });
     }
 
@@ -390,6 +424,17 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'protocolLoaded':
                     document.getElementById('protocol-name').textContent = msg.name;
+                    break;
+                case 'syncState':
+                    connected = msg.isConnected;
+                    demoRunning = msg.isDemoRunning;
+                    connectBtn.textContent = connected ? 'Disconnect' : 'Connect';
+                    demoBtn.textContent = demoRunning ? 'Stop Demo' : 'Demo Mode';
+                    filterSel.value = msg.filter;
+                    gyroSel.value = msg.gyroRange;
+                    document.getElementById('status-text').textContent = msg.statusText;
+                    document.getElementById('status-dot').className = 'dot ' + msg.statusType;
+                    document.getElementById('protocol-name').textContent = msg.protocolName;
                     break;
             }
         });
