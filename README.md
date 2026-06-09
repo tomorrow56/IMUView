@@ -8,6 +8,10 @@
 
 Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 protocol presets — plug in your board and go.
 
+<p align="center">
+  <img src="screenshoot/picture2.gif" alt="IMU View Demo" width="600">
+</p>
+
 ## Features
 
 - **Lightweight** — Under 1MB packaged, instant install

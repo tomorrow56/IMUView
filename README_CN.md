@@ -8,6 +8,10 @@
 
 在 VS Code 里实时可视化 IMU 数据。3D 姿态、实时图表、11 种协议预设——接上板子就能用。
 
+<p align="center">
+  <img src="screenshoot/picture2.gif" alt="IMU View 演示" width="800">
+</p>
+
 ## 功能
 
 - **超轻量** — 安装包不到 1MB，秒装即用

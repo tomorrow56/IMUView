@@ -2,7 +2,7 @@
   "name": "imu-view",
   "displayName": "IMU View",
   "description": "Real-time IMU visualization in VS Code — 3D orientation, live charts, 11 protocol presets, custom binary protocol via JSON",
-  "version": "3.7.0",
+  "version": "3.10.0",
   "publisher": "charcoal141II",
   "icon": "screenshoot/logo2.png",
   "license": "MIT",
@@ -35,7 +35,7 @@
       {
         "command": "imuViewer.open",
         "title": "IMU Viewer: Open",
-        "icon": "media/icon.svg"
+        "icon": "dist/media/icon.svg"
       }
     ],
     "viewsContainers": {
@@ -43,7 +43,7 @@
         {
           "id": "imu-view-container",
           "title": "IMU View",
-          "icon": "media/icon.svg"
+          "icon": "dist/media/icon.svg"
         }
       ]
     },
