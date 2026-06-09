@@ -14,7 +14,7 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 
 ## Features
 
-- **Lightweight** — Under 1MB packaged, instant install
+- **Super Lightweight** — Under 1MB packaged, instant install
 - **3D Orientation** — model rotates in real-time
 - **4 Fusion Algorithms** — Accel-only, Complementary, Madgwick, EKF
 - **Live Charts** — Accel / Gyro / Euler angles with pause & clear
@@ -47,6 +47,26 @@ Default binary packet (20 bytes):
 
 ```
 [0xAA 0xFF] [ax ay az gx gy gz mx my mz] (int16 LE × 9)
+```
+
+### Default 9-axis Example
+
+```json
+{
+  "name": "Default Protocol",
+  "sync": [170, 255],
+  "channels": [
+    { "name": "ax", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "ax" },
+    { "name": "ay", "type": "int16", "endian": "le", "scale": 1, "role": "ay" },
+    { "name": "az", "type": "int16", "endian": "le", "scale": 1, "role": "az" },
+    { "name": "gx", "type": "int16", "endian": "le", "scale": 1, "role": "gx" },
+    { "name": "gy", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "gy" },
+    { "name": "gz", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "gz" },
+    { "name": "mx", "type": "int16", "endian": "le", "scale": 1, "role": "mx" },
+    { "name": "my", "type": "int16", "endian": "le", "scale": 1, "role": "my" },
+    { "name": "mz", "type": "int16", "endian": "le", "scale": 1, "role": "mz" }
+  ]
+}
 ```
 
 ### Presets

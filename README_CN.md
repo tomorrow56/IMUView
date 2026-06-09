@@ -49,6 +49,26 @@
 [0xAA 0xFF] [ax ay az gx gy gz mx my mz] (int16 小端 × 9)
 ```
 
+### Default 9-axis 示例
+
+```json
+{
+  "name": "Default Protocol",
+  "sync": [170, 255],
+  "channels": [
+    { "name": "ax", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "ax" },
+    { "name": "ay", "type": "int16", "endian": "le", "scale": 1, "role": "ay" },
+    { "name": "az", "type": "int16", "endian": "le", "scale": 1, "role": "az" },
+    { "name": "gx", "type": "int16", "endian": "le", "scale": 1, "role": "gx" },
+    { "name": "gy", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "gy" },
+    { "name": "gz", "type": "int16", "endian": "le", "scale": 1, "negate": true, "role": "gz" },
+    { "name": "mx", "type": "int16", "endian": "le", "scale": 1, "role": "mx" },
+    { "name": "my", "type": "int16", "endian": "le", "scale": 1, "role": "my" },
+    { "name": "mz", "type": "int16", "endian": "le", "scale": 1, "role": "mz" }
+  ]
+}
+```
+
 ### 预设列表
 
 | 预设 | 轴数 | 校验 |
