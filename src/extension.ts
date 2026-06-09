@@ -113,6 +113,15 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             case 'reset':
                 IMUViewerPanel.postMessage({ command: 'reset' });
                 break;
+            case 'chartPause':
+                IMUViewerPanel.postMessage({ command: 'chartPause' });
+                break;
+            case 'chartResume':
+                IMUViewerPanel.postMessage({ command: 'chartResume' });
+                break;
+            case 'chartClear':
+                IMUViewerPanel.postMessage({ command: 'chartClear' });
+                break;
             case 'loadProtocol':
                 await this.loadProtocolFile();
                 break;
@@ -342,6 +351,14 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     </div>
 
     <div class="section">
+        <div class="section-title">Chart</div>
+        <div class="btn-row">
+            <button id="chart-pause-btn" class="btn-primary">Pause</button>
+            <button id="chart-clear-btn" class="btn-primary">Clear</button>
+        </div>
+    </div>
+
+    <div class="section">
         <div class="section-title">Protocol</div>
         <div class="row">
             <label>Preset</label>
@@ -364,7 +381,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             <span id="protocol-name" style="flex:1;font-size:11px;color:var(--vscode-descriptionForeground);">Default Protocol</span>
         </div>
         <div class="btn-row">
-            <button id="load-protocol-btn" class="btn-ghost">Load JSON</button>
+            <button id="load-protocol-btn" class="btn-primary">Load JSON</button>
         </div>
     </div>
 
@@ -422,6 +439,18 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
 
         gyroSel.addEventListener('change', () => {
             vscode.postMessage({ command: 'setGyroRange', value: gyroSel.value });
+        });
+
+        const chartPauseBtn = document.getElementById('chart-pause-btn');
+        let chartPaused = false;
+        chartPauseBtn.addEventListener('click', () => {
+            chartPaused = !chartPaused;
+            chartPauseBtn.textContent = chartPaused ? 'Resume' : 'Pause';
+            vscode.postMessage({ command: chartPaused ? 'chartPause' : 'chartResume' });
+        });
+
+        document.getElementById('chart-clear-btn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'chartClear' });
         });
 
         protocolSel.addEventListener('change', () => {

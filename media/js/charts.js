@@ -179,4 +179,12 @@ export class RealtimeCharts {
         push(this.gyro,   [imu.gx, imu.gy, imu.gz]);
         push(this.orient, [orientation.roll, orientation.pitch, orientation.yaw]);
     }
+
+    clear() {
+        [this.accel, this.gyro, this.orient].forEach(chart => {
+            chart.data.datasets.forEach(ds => { ds.data = new Array(MAX_PTS).fill(0); });
+            chart.data.labels = new Array(MAX_PTS).fill('');
+            chart.update('none');
+        });
+    }
 }

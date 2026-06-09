@@ -19,6 +19,7 @@ class App {
         this.isDemo = false;
         this.simTimer = null;
         this.simTime = 0;
+        this.chartPaused = false;
         this._statBufs = { ax: [], ay: [], az: [], gx: [], gy: [], gz: [] };
     }
 
@@ -50,6 +51,15 @@ class App {
             case 'reset':
                 this._reset();
                 break;
+            case 'chartPause':
+                this.chartPaused = true;
+                break;
+            case 'chartResume':
+                this.chartPaused = false;
+                break;
+            case 'chartClear':
+                this.charts.clear();
+                break;
         }
     }
 
@@ -65,7 +75,7 @@ class App {
         document.getElementById('pitch-val').textContent = orientation.pitch.toFixed(1);
         document.getElementById('yaw-val').textContent = orientation.yaw.toFixed(1);
 
-        if (now - this.lastChartTime > CHART_THROTTLE_MS) {
+        if (!this.chartPaused && now - this.lastChartTime > CHART_THROTTLE_MS) {
             this.lastChartTime = now;
             this.charts.update(imu, orientation);
         }
