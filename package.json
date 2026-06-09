@@ -3,7 +3,7 @@
   "displayName": "IMU View",
   "description": "Real-time IMU visualization in VS Code — 3D orientation, live charts, 11 protocol presets, custom binary protocol via JSON",
   "version": "3.7.0",
-  "publisher": "charcoal141",
+  "publisher": "charcoal141II",
   "icon": "screenshoot/logo2.png",
   "license": "MIT",
   "repository": {
