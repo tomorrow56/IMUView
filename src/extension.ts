@@ -142,6 +142,8 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     .btn-ghost { background: transparent; color: var(--vscode-foreground); border: 1px solid var(--vscode-input-border); }
     .btn-ghost:hover { background: var(--vscode-list-hoverBackground); }
     .btn-full { width: 100%; margin-top: 4px; }
+    .btn-row { display: flex; gap: 6px; margin-top: 4px; }
+    .btn-row button { flex: 1; }
     .status { display: flex; align-items: center; gap: 5px; margin-top: 10px; padding: 6px 8px; background: var(--vscode-input-background); border-radius: 3px; font-size: 11px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: #888; }
     .dot.ok { background: #4ec9b0; }
@@ -156,7 +158,6 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
         <div class="row">
             <label>Port</label>
             <select id="port-select"><option value="">--</option></select>
-            <button class="btn-ghost" id="refresh-btn">Refresh</button>
         </div>
         <div class="row">
             <label>Baud</label>
@@ -169,7 +170,10 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                 <option value="921600">921600</option>
             </select>
         </div>
-        <button id="connect-btn" class="btn-primary btn-full">Connect</button>
+        <div class="btn-row">
+            <button id="refresh-btn" class="btn-primary">Refresh</button>
+            <button id="connect-btn" class="btn-primary">Connect</button>
+        </div>
     </div>
 
     <div class="section">
@@ -193,9 +197,9 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                 <option value="262.4">125 dps</option>
             </select>
         </div>
-        <div class="row">
-            <button id="reset-btn" class="btn-ghost">Reset</button>
-            <button id="demo-btn" class="btn-ghost">Demo Mode</button>
+        <div class="btn-row">
+            <button id="reset-btn" class="btn-primary">Reset</button>
+            <button id="demo-btn" class="btn-primary">Demo Mode</button>
         </div>
     </div>
 
