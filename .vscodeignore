@@ -9,7 +9,15 @@ node_modules/
 !node_modules/ms
 !node_modules/node-addon-api
 !node_modules/node-gyp-build
+node_modules/@serialport/binding-mock/**
+node_modules/node-addon-api/*.h
+node_modules/node-addon-api/tools/**
 tsconfig.json
 webpack.config.js
 .gitignore
 项目记录.md
+screenshoot/picture1.png
+screenshoot/logo.png
+examples/
+dist/extension.js.map
+dist/media/**/*.LICENSE.txt

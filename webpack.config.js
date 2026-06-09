@@ -37,7 +37,7 @@ const extensionConfig = {
       ],
     }),
   ],
-  devtool: 'nosources-source-map',
+  devtool: false,
 };
 
 module.exports = [extensionConfig];

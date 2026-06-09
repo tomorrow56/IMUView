@@ -10,6 +10,7 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 
 ## Features
 
+- **Lightweight** — Under 1MB packaged, instant install
 - **3D Orientation** — model rotates in real-time
 - **4 Fusion Algorithms** — Accel-only, Complementary, Madgwick, EKF
 - **Live Charts** — Accel / Gyro / Euler angles with pause & clear
@@ -17,6 +18,10 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 - **Custom Protocol** — Load any binary format via JSON config with checksum support
 - **Serial Port** — Direct USB connection, no browser needed
 - **Demo Mode** — Test without hardware
+
+<p align="center">
+  <img src="screenshoot/picture1.png" alt="IMU View Screenshot" width="800">
+</p>
 
 ## Install
 

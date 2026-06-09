@@ -1,17 +1,33 @@
 {
   "name": "imu-view",
   "displayName": "IMU View",
-  "description": "Real-time IMU orientation visualization with 3D view and sensor charts",
-  "version": "2.5.0",
+  "description": "Real-time IMU visualization in VS Code — 3D orientation, live charts, 11 protocol presets, custom binary protocol via JSON",
+  "version": "3.7.0",
   "publisher": "charcoal141",
+  "icon": "screenshoot/logo2.png",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/charcoal141/IMUView.git"
   },
+  "homepage": "https://github.com/charcoal141/IMUView#readme",
+  "keywords": [
+    "imu",
+    "sensor",
+    "3d",
+    "orientation",
+    "serial",
+    "mpu6050",
+    "accelerometer",
+    "gyroscope",
+    "visualization",
+    "stm32",
+    "embedded"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Visualization"],
+  "categories": ["Visualization", "Other"],
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
