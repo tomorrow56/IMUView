@@ -190,6 +190,142 @@ export function parsePacket(buf: Buffer, config: ProtocolConfig, gyroScale: numb
     return reading;
 }
 
+export const PROTOCOL_PRESETS: Record<string, ProtocolConfig> = {
+    'default': DEFAULT_PROTOCOL,
+    'mpu6050': {
+        name: 'MPU6050 6-axis',
+        sync: [0xAA, 0xFF],
+        channels: [
+            { name: 'ax', type: 'int16', endian: 'be', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'be', scale: 1, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'be', scale: 1, role: 'az' },
+            { name: 'gx', type: 'int16', endian: 'be', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'int16', endian: 'be', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'int16', endian: 'be', scale: 1, role: 'gz' },
+        ],
+    },
+    'witmotion': {
+        name: 'WitMotion JY901',
+        sync: [0x55, 0x51],
+        channels: [
+            { name: 'ax', type: 'int16', endian: 'le', scale: 0.0004788, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'le', scale: 0.0004788, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'le', scale: 0.0004788, role: 'az' },
+            { name: 'temp', type: 'int16', endian: 'le', scale: 0.01 },
+        ],
+        checksum: { type: 'sum8', scope: 'all' },
+    },
+    'bmi160': {
+        name: 'BMI160 6-axis',
+        sync: [0xAA, 0x55],
+        channels: [
+            { name: 'gx', type: 'int16', endian: 'le', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'int16', endian: 'le', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'int16', endian: 'le', scale: 1, role: 'gz' },
+            { name: 'ax', type: 'int16', endian: 'le', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'le', scale: 1, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'le', scale: 1, role: 'az' },
+        ],
+    },
+    'icm20948': {
+        name: 'ICM-20948 9-axis',
+        sync: [0xAA, 0xFF],
+        channels: [
+            { name: 'ax', type: 'int16', endian: 'be', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'be', scale: 1, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'be', scale: 1, role: 'az' },
+            { name: 'gx', type: 'int16', endian: 'be', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'int16', endian: 'be', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'int16', endian: 'be', scale: 1, role: 'gz' },
+            { name: 'mx', type: 'int16', endian: 'le', scale: 1, role: 'mx' },
+            { name: 'my', type: 'int16', endian: 'le', scale: 1, role: 'my' },
+            { name: 'mz', type: 'int16', endian: 'le', scale: 1, role: 'mz' },
+        ],
+    },
+    'lsm6dsl': {
+        name: 'LSM6DSL 6-axis',
+        sync: [0xAA, 0x5A],
+        channels: [
+            { name: 'gx', type: 'int16', endian: 'le', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'int16', endian: 'le', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'int16', endian: 'le', scale: 1, role: 'gz' },
+            { name: 'ax', type: 'int16', endian: 'le', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'le', scale: 1, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'le', scale: 1, role: 'az' },
+        ],
+    },
+    'ano': {
+        name: 'ANO Protocol',
+        sync: [0xAA, 0xAF],
+        channels: [
+            { name: 'ax', type: 'int16', endian: 'le', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'le', scale: 1, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'le', scale: 1, role: 'az' },
+            { name: 'gx', type: 'int16', endian: 'le', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'int16', endian: 'le', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'int16', endian: 'le', scale: 1, role: 'gz' },
+        ],
+        checksum: { type: 'sum8', scope: 'all' },
+    },
+    'xsens': {
+        name: 'Xsens MTi (simplified)',
+        sync: [0xFA, 0xFF],
+        channels: [
+            { name: 'ax', type: 'float32', endian: 'be', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'float32', endian: 'be', scale: 1, role: 'ay' },
+            { name: 'az', type: 'float32', endian: 'be', scale: 1, role: 'az' },
+            { name: 'gx', type: 'float32', endian: 'be', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'float32', endian: 'be', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'float32', endian: 'be', scale: 1, role: 'gz' },
+            { name: 'mx', type: 'float32', endian: 'be', scale: 1, role: 'mx' },
+            { name: 'my', type: 'float32', endian: 'be', scale: 1, role: 'my' },
+            { name: 'mz', type: 'float32', endian: 'be', scale: 1, role: 'mz' },
+        ],
+    },
+    'vectornav': {
+        name: 'VectorNav VN-IMU',
+        sync: [0xFA, 0x01],
+        channels: [
+            { name: 'ax', type: 'float32', endian: 'le', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'float32', endian: 'le', scale: 1, role: 'ay' },
+            { name: 'az', type: 'float32', endian: 'le', scale: 1, role: 'az' },
+            { name: 'gx', type: 'float32', endian: 'le', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'float32', endian: 'le', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'float32', endian: 'le', scale: 1, role: 'gz' },
+            { name: 'mx', type: 'float32', endian: 'le', scale: 1, role: 'mx' },
+            { name: 'my', type: 'float32', endian: 'le', scale: 1, role: 'my' },
+            { name: 'mz', type: 'float32', endian: 'le', scale: 1, role: 'mz' },
+        ],
+        checksum: { type: 'crc16', scope: 'data' },
+    },
+    'gpchc': {
+        name: 'GPCHC (CHC Navigation)',
+        sync: [0xAA, 0x55],
+        channels: [
+            { name: 'ax', type: 'float32', endian: 'le', scale: 1, role: 'ax' },
+            { name: 'ay', type: 'float32', endian: 'le', scale: 1, role: 'ay' },
+            { name: 'az', type: 'float32', endian: 'le', scale: 1, role: 'az' },
+            { name: 'gx', type: 'float32', endian: 'le', scale: 1, role: 'gx' },
+            { name: 'gy', type: 'float32', endian: 'le', scale: 1, role: 'gy' },
+            { name: 'gz', type: 'float32', endian: 'le', scale: 1, role: 'gz' },
+        ],
+        checksum: { type: 'xor', scope: 'data' },
+    },
+    'pashr': {
+        name: 'NMEA-0183 PASHR (binary)',
+        sync: [0xAA, 0x44],
+        channels: [
+            { name: 'ax', type: 'int16', endian: 'le', scale: 0.001, role: 'ax' },
+            { name: 'ay', type: 'int16', endian: 'le', scale: 0.001, role: 'ay' },
+            { name: 'az', type: 'int16', endian: 'le', scale: 0.001, role: 'az' },
+            { name: 'gx', type: 'int16', endian: 'le', scale: 0.01, role: 'gx' },
+            { name: 'gy', type: 'int16', endian: 'le', scale: 0.01, role: 'gy' },
+            { name: 'gz', type: 'int16', endian: 'le', scale: 0.01, role: 'gz' },
+        ],
+        checksum: { type: 'xor', scope: 'all' },
+    },
+};
+
 export function validateProtocol(config: any): string | null {
     if (!config || typeof config !== 'object') return 'Protocol config must be an object';
     if (!Array.isArray(config.sync) || config.sync.length === 0) return 'sync must be a non-empty array of bytes';
