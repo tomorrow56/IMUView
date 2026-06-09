@@ -131,7 +131,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
 <head>
 <style>
     body { font-family: var(--vscode-font-family, 'Segoe UI', sans-serif); font-size: 12px; padding: 10px; color: var(--vscode-foreground); }
-    .section { margin-bottom: 14px; }
+    .section { margin-bottom: 20px; }
     .section-title { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--vscode-descriptionForeground); margin-bottom: 8px; }
     .row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
     label { font-size: 11px; color: var(--vscode-descriptionForeground); min-width: 35px; }
@@ -144,7 +144,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     .btn-full { width: 100%; margin-top: 4px; }
     .btn-row { display: flex; gap: 6px; margin-top: 4px; }
     .btn-row button { flex: 1; }
-    .status { display: flex; align-items: center; gap: 5px; margin-top: 10px; padding: 6px 8px; background: var(--vscode-input-background); border-radius: 3px; font-size: 11px; }
+    .status { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--vscode-input-background); border-top: 1px solid var(--vscode-input-border); font-size: 11px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: #888; }
     .dot.ok { background: #4ec9b0; }
     .dot.error { background: #f44747; }
