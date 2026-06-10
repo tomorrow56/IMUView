@@ -388,7 +388,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             <span id="protocol-name">Default Protocol</span>
         </div>
         <div class="btn-row">
-            <button id="load-protocol-btn" class="btn-primary">Load JSON</button>
+            <button id="load-protocol-btn" class="btn-primary">Load Custom JSON</button>
         </div>
         <button id="protocol-doc-btn" class="btn-ghost btn-full">Protocol Description</button>
     </div>

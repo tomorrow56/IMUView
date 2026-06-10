@@ -17,6 +17,7 @@ webpack.config.js
 .gitignore
 项目记录.md
 screenshoot/picture1.png
+screenshoot/picture2.gif
 screenshoot/logo.png
 examples/
 dist/extension.js.map
