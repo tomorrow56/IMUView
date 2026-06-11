@@ -34,9 +34,13 @@
 
 ## 安装
 
-1. 扩展面板（`Ctrl+Shift+X`）
-2. 搜索 **"IMU View"**
-3. 安装
+1. 从 [Releases](https://github.com/charcoal141/IMUView/releases) 下载 `.vsix` 文件
+2. 打开 VS Code → 扩展面板（`Ctrl+Shift+X`）
+3. 点击 `...` → **从 VSIX 安装...** → 选择下载的文件
+
+<p align="center">
+  <img src="screenshoot/picture3.png" alt="从 VSIX 安装" width="600">
+</p>
 
 ## 使用
 

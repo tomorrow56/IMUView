@@ -20,7 +20,7 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 
 ## Features
 
-- **Super Lightweight** — Under 1MB packaged, instant install
+- **Super Lightweight** — Under 1.1MB packaged, instant install
 - **3D Orientation** — model rotates in real-time
 - **4 Fusion Algorithms** — Accel-only, Complementary, Madgwick, EKF
 - **Live Charts** — Accel / Gyro / Euler angles with pause & clear
@@ -35,9 +35,13 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 
 ## Install
 
-1. Extensions panel (`Ctrl+Shift+X`)
-2. Search **"IMU View"**
-3. Install
+1. Download the `.vsix` file from [Releases](https://github.com/charcoal141/IMUView/releases)
+2. Open VS Code → Extensions panel (`Ctrl+Shift+X`)
+3. Click `...` → **Install from VSIX...** → select the downloaded file
+
+<p align="center">
+  <img src="screenshoot/picture3.png" alt="Install from VSIX" width="600">
+</p>
 
 ## Usage
 
