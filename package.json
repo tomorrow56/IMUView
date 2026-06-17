@@ -1,7 +1,7 @@
 {
   "name": "imu-view",
   "displayName": "IMU View",
-  "description": "Real-time IMU visualization in VS Code — 3D orientation, live charts, 11 protocol presets, custom binary protocol via JSON",
+  "description": "Real-time IMU visualization in VS Code — 3D orientation, live charts, 11 protocol presets, custom binary protocol via JSON, Android Sensor BLE support",
   "version": "3.11.0",
   "publisher": "charcoal141II",
   "icon": "screenshoot/logo2.png",
@@ -17,6 +17,9 @@
     "3d",
     "orientation",
     "serial",
+    "ble",
+    "bluetooth",
+    "android",
     "mpu6050",
     "accelerometer",
     "gyroscope",
@@ -27,7 +30,10 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Visualization", "Other"],
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
@@ -63,15 +69,17 @@
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "copy-webpack-plugin": "^12.0.0",
+    "ts-loader": "^9.5.0",
     "typescript": "^5.3.0",
     "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
-    "ts-loader": "^9.5.0",
-    "copy-webpack-plugin": "^12.0.0"
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@abandonware/noble": "^1.9.2-15",
+    "@stoprocent/noble": "^2.5.5",
     "serialport": "^12.0.0"
   }
 }

@@ -13,6 +13,7 @@
 [English](README.md) | [中文](README_CN.md)
 
 Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 protocol presets — plug in your board and go.
+Now with **Android Sensor BLE** support: connect wirelessly via Bluetooth LE from your Android phone.
 
 <p align="center">
   <img src="screenshoot/picture2.gif" alt="IMU View Demo" width="600">
@@ -27,6 +28,7 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 - **11 Protocol Presets** — MPU6050, WitMotion, ICM-20948, VectorNav, ANO, GPCHC, Xsens, and more
 - **Custom Protocol** — Load any binary format via JSON config with checksum support
 - **Serial Port** — Direct USB connection, no browser needed
+- **Android BLE** — Wireless connection via [Android Sensor BLE](https://github.com/tomorrow56/Android_Sensor_BLE) app
 - **Demo Mode** — Test without hardware
 
 <p align="center">
@@ -47,9 +49,21 @@ Real-time IMU visualization inside VS Code. 3D orientation, live charts, 11 prot
 
 Click the **IMU** icon in the Activity Bar. The 3D panel opens automatically.
 
+### Serial (USB)
+
 - Select protocol preset or load custom JSON
 - Pick your COM port and baud rate → Connect
 - No hardware? Hit **Demo Mode**
+
+### Android Sensor BLE (Wireless)
+
+1. Install and launch the [Android Sensor BLE](https://github.com/tomorrow56/Android_Sensor_BLE) app on your Android device
+2. Tap **Start** in the app to begin BLE advertising
+3. In VS Code, switch to the **BLE** tab in the IMU View sidebar
+4. Click **Scan & Connect** — IMU View will auto-discover and connect to the device
+
+> **Note:** Requires Bluetooth LE support on the host PC. On Linux, `@abandonware/noble` needs
+> `CAP_NET_RAW` capability or running as root. On macOS and Windows, no special setup is needed.
 
 ## Protocol
 

@@ -17,6 +17,7 @@ const extensionConfig = {
   externals: {
     vscode: 'commonjs vscode',
     serialport: 'commonjs serialport',
+    '@abandonware/noble': 'commonjs @abandonware/noble',
   },
   resolve: {
     extensions: ['.ts', '.js'],
