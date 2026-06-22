@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { SerialConnection } from './serial';
+import { BleConnection } from './ble';
 import { getWebviewContent } from './webview';
 import { ProtocolConfig, DEFAULT_PROTOCOL, PROTOCOL_PRESETS, validateProtocol } from './protocol';
 
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 class IMUSidebarProvider implements vscode.WebviewViewProvider {
     private view?: vscode.WebviewView;
     private serial: SerialConnection | null = null;
+    private ble: BleConnection | null = null;
     private protocol: ProtocolConfig = DEFAULT_PROTOCOL;
     private context: vscode.ExtensionContext;
 
@@ -31,6 +33,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     private statusText = 'Disconnected';
     private statusType = 'idle';
     private currentPreset = 'default';
+    private connectionMode: 'serial' | 'ble' = 'serial';
 
     constructor(private readonly extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
         this.context = context;
@@ -76,19 +79,27 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             statusType: this.statusType,
             protocolName: this.protocol.name,
             protocolPreset: this.currentPreset,
+            connectionMode: this.connectionMode,
         });
     }
 
     private async handleMessage(msg: any) {
         switch (msg.command) {
             case 'connect':
-                await this.connect(msg.port, msg.baudRate);
+                if (msg.mode === 'ble') {
+                    await this.connectBle();
+                } else {
+                    await this.connectSerial(msg.port, msg.baudRate);
+                }
                 break;
             case 'disconnect':
                 await this.disconnect();
                 break;
             case 'listPorts':
                 await this.listPorts();
+                break;
+            case 'setConnectionMode':
+                this.connectionMode = msg.mode;
                 break;
             case 'demo':
                 this.ensurePanel();
@@ -158,7 +169,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private async connect(port: string, baudRate: number) {
+    private async connectSerial(port: string, baudRate: number) {
         if (!this.view) return;
         try {
             await this.disconnect();
@@ -175,10 +186,45 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    private async connectBle() {
+        if (!this.view) return;
+        try {
+            await this.disconnect();
+            this.ensurePanel();
+
+            this.ble = new BleConnection(
+                (data) => {
+                    IMUViewerPanel.postMessage({ command: 'imuData', data });
+                },
+                (text, type) => {
+                    this.sendStatus(text, type);
+                    if (type === 'ok') {
+                        this.isConnected = true;
+                        this.view?.webview.postMessage({ command: 'connected' });
+                    } else if (type === 'idle') {
+                        this.isConnected = false;
+                        this.view?.webview.postMessage({ command: 'disconnected' });
+                    }
+                }
+            );
+
+            await this.ble.startScan();
+        } catch (e: any) {
+            this.sendStatus(`BLE failed: ${e.message}`, 'error');
+            this.ble = null;
+        }
+    }
+
     private async disconnect() {
         if (this.serial) {
             await this.serial.close();
             this.serial = null;
+        }
+        if (this.ble) {
+            await this.ble.disconnect();
+            this.ble = null;
+        }
+        if (this.isConnected) {
             this.isConnected = false;
             this.sendStatus('Disconnected', 'idle');
             this.view?.webview.postMessage({ command: 'disconnected' });
@@ -303,30 +349,61 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
     .dot.ok { background: #4ec9b0; }
     .dot.error { background: #f44747; }
     .dot.idle { background: #888; }
+    .dot.scanning { background: #d7ba7d; animation: blink 0.8s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
     .rate { margin-left: auto; font-family: monospace; color: var(--vscode-descriptionForeground); }
+    /* BLE/Serial タブ */
+    .mode-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+    .mode-tab { flex: 1; min-height: 26px; font-size: 11px; border-radius: 4px; cursor: pointer; border: 1px solid var(--vscode-input-border); background: transparent; color: var(--vscode-foreground); }
+    .mode-tab.active { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border-color: transparent; }
+    .mode-panel { display: none; }
+    .mode-panel.active { display: block; }
+    /* BLE ヒント */
+    .ble-hint { font-size: 10px; color: var(--vscode-descriptionForeground); margin-top: 6px; line-height: 1.5; }
 </style>
 </head>
 <body>
     <div class="section">
         <div class="section-title">Connection</div>
-        <div class="row">
-            <label>Port</label>
-            <select id="port-select"><option value="">--</option></select>
+
+        <!-- モード切り替えタブ -->
+        <div class="mode-tabs">
+            <button class="mode-tab active" id="tab-serial" onclick="switchMode('serial')">Serial</button>
+            <button class="mode-tab"        id="tab-ble"    onclick="switchMode('ble')">BLE</button>
         </div>
-        <div class="row">
-            <label>Baud</label>
-            <select id="baud-select">
-                <option value="9600">9600</option>
-                <option value="57600">57600</option>
-                <option value="115200" selected>115200</option>
-                <option value="230400">230400</option>
-                <option value="460800">460800</option>
-                <option value="921600">921600</option>
-            </select>
+
+        <!-- Serial パネル -->
+        <div class="mode-panel active" id="panel-serial">
+            <div class="row">
+                <label>Port</label>
+                <select id="port-select"><option value="">--</option></select>
+            </div>
+            <div class="row">
+                <label>Baud</label>
+                <select id="baud-select">
+                    <option value="9600">9600</option>
+                    <option value="57600">57600</option>
+                    <option value="115200" selected>115200</option>
+                    <option value="230400">230400</option>
+                    <option value="460800">460800</option>
+                    <option value="921600">921600</option>
+                </select>
+            </div>
+            <div class="btn-row">
+                <button id="refresh-btn" class="btn-primary">Refresh</button>
+                <button id="connect-serial-btn" class="btn-primary">Connect</button>
+            </div>
         </div>
-        <div class="btn-row">
-            <button id="refresh-btn" class="btn-primary">Refresh</button>
-            <button id="connect-btn" class="btn-primary">Connect</button>
+
+        <!-- BLE パネル -->
+        <div class="mode-panel" id="panel-ble">
+            <p class="ble-hint">
+                Scans for <strong>Android Sensor BLE</strong> app automatically.<br>
+                Make sure the app is advertising before connecting.
+            </p>
+            <div class="btn-row">
+                <button id="connect-ble-btn" class="btn-primary">Scan &amp; Connect</button>
+            </div>
         </div>
     </div>
 
@@ -401,30 +478,52 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
 
     <script>
         const vscode = acquireVsCodeApi();
-        const portSel = document.getElementById('port-select');
-        const baudSel = document.getElementById('baud-select');
-        const connectBtn = document.getElementById('connect-btn');
+        const portSel   = document.getElementById('port-select');
+        const baudSel   = document.getElementById('baud-select');
         const filterSel = document.getElementById('filter-select');
-        const gyroSel = document.getElementById('gyro-range');
-        const demoBtn = document.getElementById('demo-btn');
+        const gyroSel   = document.getElementById('gyro-range');
+        const demoBtn   = document.getElementById('demo-btn');
         const protocolSel = document.getElementById('protocol-select');
-        let connected = false;
-        let demoRunning = false;
 
+        let connected    = false;
+        let demoRunning  = false;
+        let currentMode  = 'serial'; // 'serial' | 'ble'
+
+        // ── モード切り替え ──────────────────────────────────────────
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('tab-serial').classList.toggle('active', mode === 'serial');
+            document.getElementById('tab-ble').classList.toggle('active', mode === 'ble');
+            document.getElementById('panel-serial').classList.toggle('active', mode === 'serial');
+            document.getElementById('panel-ble').classList.toggle('active', mode === 'ble');
+            vscode.postMessage({ command: 'setConnectionMode', mode });
+        }
+
+        // ── Serial 接続 ─────────────────────────────────────────────
         document.getElementById('refresh-btn').addEventListener('click', () => {
             vscode.postMessage({ command: 'listPorts' });
         });
 
-        connectBtn.addEventListener('click', () => {
+        document.getElementById('connect-serial-btn').addEventListener('click', () => {
             if (connected) {
                 vscode.postMessage({ command: 'disconnect' });
             } else {
                 const port = portSel.value;
                 if (!port) return;
-                vscode.postMessage({ command: 'connect', port, baudRate: Number(baudSel.value) });
+                vscode.postMessage({ command: 'connect', mode: 'serial', port, baudRate: Number(baudSel.value) });
             }
         });
 
+        // ── BLE 接続 ────────────────────────────────────────────────
+        document.getElementById('connect-ble-btn').addEventListener('click', () => {
+            if (connected) {
+                vscode.postMessage({ command: 'disconnect' });
+            } else {
+                vscode.postMessage({ command: 'connect', mode: 'ble' });
+            }
+        });
+
+        // ── Demo ────────────────────────────────────────────────────
         demoBtn.addEventListener('click', () => {
             if (demoRunning) {
                 vscode.postMessage({ command: 'stopDemo' });
@@ -478,6 +577,7 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
             vscode.postMessage({ command: 'openProtocolDoc' });
         });
 
+        // ── メッセージ受信 ──────────────────────────────────────────
         window.addEventListener('message', (e) => {
             const msg = e.data;
             switch (msg.command) {
@@ -492,11 +592,13 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'connected':
                     connected = true;
-                    connectBtn.textContent = 'Disconnect';
+                    document.getElementById('connect-serial-btn').textContent = 'Disconnect';
+                    document.getElementById('connect-ble-btn').textContent    = 'Disconnect';
                     break;
                 case 'disconnected':
                     connected = false;
-                    connectBtn.textContent = 'Connect';
+                    document.getElementById('connect-serial-btn').textContent = 'Connect';
+                    document.getElementById('connect-ble-btn').textContent    = 'Scan & Connect';
                     break;
                 case 'status':
                     document.getElementById('status-text').textContent = msg.text;
@@ -508,16 +610,18 @@ class IMUSidebarProvider implements vscode.WebviewViewProvider {
                     else { protocolSel.value = 'custom'; }
                     break;
                 case 'syncState':
-                    connected = msg.isConnected;
+                    connected   = msg.isConnected;
                     demoRunning = msg.isDemoRunning;
-                    connectBtn.textContent = connected ? 'Disconnect' : 'Connect';
+                    document.getElementById('connect-serial-btn').textContent = connected ? 'Disconnect' : 'Connect';
+                    document.getElementById('connect-ble-btn').textContent    = connected ? 'Disconnect' : 'Scan & Connect';
                     demoBtn.textContent = demoRunning ? 'Stop Demo' : 'Demo Mode';
                     filterSel.value = msg.filter;
-                    gyroSel.value = msg.gyroRange;
+                    gyroSel.value   = msg.gyroRange;
                     document.getElementById('status-text').textContent = msg.statusText;
                     document.getElementById('status-dot').className = 'dot ' + msg.statusType;
                     document.getElementById('protocol-name').textContent = msg.protocolName;
                     if (msg.protocolPreset) { protocolSel.value = msg.protocolPreset; }
+                    if (msg.connectionMode) { switchMode(msg.connectionMode); }
                     break;
             }
         });
